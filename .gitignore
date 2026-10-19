@@ -9,6 +9,7 @@ data/processed/*
 !data/processed/.gitkeep
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/*.pdf
 data/history.sqlite*
 .claude/
 .DS_Store

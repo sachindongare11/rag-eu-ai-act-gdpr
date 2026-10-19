@@ -9,7 +9,7 @@ Every answer cites regulation, article/paragraph or recital, and PDF page, or re
 ```bash
 uv sync --all-extras          # install (core + index + llm + api + dev)
 cp .env.example .env          # defaults: local Ollama LLM
-# put the PDFs in data/raw/ (filenames are discovered, not hardcoded)
+# the two PDFs are in data/raw/ (committed; filenames are discovered, not hardcoded)
 uv run rag-eu-law ingest      # parse, chunk, embed, index (about 17 s on CPU)
 uv run rag-eu-law ask "What does GDPR Article 17 say?"
 uv run pytest                 # tests + coverage

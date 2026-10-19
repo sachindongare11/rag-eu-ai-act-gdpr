@@ -17,7 +17,7 @@ asking at once, or a signed-in browser session (it needs a password).
 ## 0. Before you start
 - Supabase project set up as in [CLAUDE.md](CLAUDE.md) (SQL migration run, users created).
 - OpenAI key with a monthly spending limit set in the OpenAI dashboard.
-- The two PDFs in `data/raw/` on the machine you build from.
+- The two PDFs in `data/raw/` (committed to the repo).
 
 ## 1. Build and test the image locally
 ```bash
@@ -45,14 +45,16 @@ Already set in the image: `RAG_EMBEDDER=fastembed`, `RAG_EMBEDDING_CACHE_DIR=/op
 Use the platform's secret store for the two keys.
 
 ## 3. Where the PDFs come from
-The index is built at image build time from `data/raw/*.pdf` in the build context.
-- **Build from your machine** (`fly deploy`, `gcloud run deploy --source .`, or `docker build` and
-  push): the local PDFs are included. Check that your tool does not skip them: `gcloud` follows
-  `.gitignore` unless a `.gcloudignore` exists, and `data/raw/*` is git-ignored.
-- **Build from GitHub** (Render and similar): the PDFs are not in the repo, so the image has no
-  index and the app says the index is empty. Either commit the PDFs to the private repo (remove
-  `data/raw/*` from `.gitignore` for the PDFs; check you are happy to store them there), or mount
-  them at `/app/data/raw` so the entrypoint ingests on first start.
+The two PDFs are committed in `data/raw/` (public EU legislation, private repo), so a build from
+GitHub (Render and similar) or from your machine (`fly deploy`, `docker build`) has them, and the
+Dockerfile builds the index during the image build.
+- `gcloud run deploy --source .` follows `.gitignore` unless a `.gcloudignore` exists; the PDFs are
+  now un-ignored, so they are uploaded.
+- The index (vectors, BM25 file, `chunks.jsonl`) is **not** committed: it is rebuilt from the PDFs
+  in about 35 seconds during the build, identically each time, and Chroma's binary files would
+  change on every rebuild and bloat the git history. If the PDFs change, rebuild the image.
+- Before sharing the repo beyond your team, check the licence terms of each PDF (the GDPR file is a
+  third-party web print, the AI Act file is the European Parliament's text).
 
 ## 4. Platforms (unverified commands)
 Common settings: 1 instance only (or sticky sessions; Streamlit keeps state per session), at least
