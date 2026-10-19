@@ -107,4 +107,3 @@ eval/          questions and reports
   the other law in cross-regulation questions (see eval question x02 in `CLAUDE.md`).
 - The Anthropic client and the real cross-encoder reranker are only tested with fakes.
 
-More detail, including every measured number and open issue: [CLAUDE.md](CLAUDE.md).
