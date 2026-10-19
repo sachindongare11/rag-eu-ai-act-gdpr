@@ -27,7 +27,11 @@ from rag_eu_law.domain.protocols import (
 )
 from rag_eu_law.generation.generator import GroundedAnswerGenerator
 from rag_eu_law.generation.llm_clients import AnthropicClient, OllamaClient, OpenAIClient
-from rag_eu_law.indexing.embedder import HashingEmbedder, SentenceTransformerEmbedder
+from rag_eu_law.indexing.embedder import (
+    FastEmbedEmbedder,
+    HashingEmbedder,
+    SentenceTransformerEmbedder,
+)
 from rag_eu_law.indexing.keyword_index import Bm25KeywordIndex
 from rag_eu_law.indexing.pipeline import IndexingPipeline
 from rag_eu_law.indexing.vector_store import ChromaVectorStore, InMemoryVectorStore
@@ -44,6 +48,11 @@ from rag_eu_law.storage.sqlite_store import SqliteRunStore
 EMBEDDER_FACTORIES: dict[str, Callable[[Settings], Embedder]] = {
     constants.EMBEDDER_SENTENCE_TRANSFORMERS: lambda s: SentenceTransformerEmbedder(
         s.embedding_model, batch_size=s.embedding_batch_size
+    ),
+    constants.EMBEDDER_FASTEMBED: lambda s: FastEmbedEmbedder(
+        s.embedding_model,
+        cache_dir=str(s.embedding_cache_dir) if s.embedding_cache_dir else None,
+        batch_size=s.embedding_batch_size,
     ),
     constants.EMBEDDER_HASHING: lambda _: HashingEmbedder(),
 }

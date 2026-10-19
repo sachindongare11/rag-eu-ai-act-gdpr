@@ -59,6 +59,51 @@ class SentenceTransformerEmbedder:
         return self._model
 
 
+class FastEmbedEmbedder:
+    """ONNX embeddings (no PyTorch): same bge model, small install, CPU only.
+
+    Vectors match `SentenceTransformerEmbedder` for the same model (cosine 1.0 on a test
+    sentence), so an index built with one can be queried with the other.
+    """
+
+    def __init__(
+        self,
+        model_name: str,
+        cache_dir: str | None = None,
+        query_prefix: str = BGE_QUERY_PREFIX,
+        batch_size: int = EMBEDDING_BATCH_SIZE,
+    ) -> None:
+        self._model_name = model_name
+        self._cache_dir = cache_dir
+        self._query_prefix = query_prefix
+        self._batch_size = batch_size
+        self._model: Any = None
+
+    @property
+    def dimension(self) -> int:
+        return int(self._load().embedding_size)
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return self._encode(texts)
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._encode([self._query_prefix + text])[0]
+
+    def _encode(self, texts: list[str]) -> list[list[float]]:
+        try:
+            vectors = self._load().embed(texts, batch_size=self._batch_size)
+            return [[float(value) for value in vector] for vector in vectors]
+        except Exception as error:  # ONNX runtime and download errors are varied
+            raise IndexingError(f"Embedding failed with {self._model_name}: {error}") from error
+
+    def _load(self) -> Any:
+        if self._model is None:
+            from fastembed import TextEmbedding  # noqa: PLC0415 - optional 'index-lite' extra
+
+            self._model = TextEmbedding(self._model_name, cache_dir=self._cache_dir)
+        return self._model
+
+
 class HashingEmbedder:
     """Dependency-free bag-of-words embedder (feature hashing). Fast and deterministic.
 

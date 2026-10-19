@@ -57,6 +57,7 @@ VECTOR_STORE_CHROMA = "chroma"
 VECTOR_STORE_MEMORY = "memory"
 EMBEDDER_SENTENCE_TRANSFORMERS = "sentence-transformers"
 EMBEDDER_HASHING = "hashing"
+EMBEDDER_FASTEMBED = "fastembed"
 
 # --- retrieval ---------------------------------------------------------------
 REFERENCE_LIST_WEIGHT = 2.0

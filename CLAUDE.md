@@ -48,6 +48,8 @@ flowchart LR
 | Vector store | `ChromaVectorStore` (default), `InMemoryVectorStore` ([vector_store.py](src/rag_eu_law/indexing/vector_store.py)) | done |
 | Keyword index | `Bm25KeywordIndex` ([keyword_index.py](src/rag_eu_law/indexing/keyword_index.py)) | done |
 | Index orchestration | `IndexingPipeline` ([pipeline.py](src/rag_eu_law/indexing/pipeline.py)) | done |
+| Embed (lite) | `FastEmbedEmbedder` (ONNX, no PyTorch; same vectors as the default: cosine 1.0, 25/26 identical top-5 lists on the eval) ([embedder.py](src/rag_eu_law/indexing/embedder.py)) | done |
+| Deploy | [Dockerfile](Dockerfile), [docker/entrypoint.sh](docker/entrypoint.sh), guide in [DEPLOY.md](DEPLOY.md) | built and run locally, not deployed to a host (see DEPLOY.md) |
 | Wiring | `Container` ([container.py](src/rag_eu_law/app/container.py)) | done |
 | Retrieve | `HybridRetriever` ([hybrid.py](src/rag_eu_law/retrieval/hybrid.py)) | done |
 | Reference parsing | `parse_references` ([references.py](src/rag_eu_law/retrieval/references.py)) | done |
@@ -109,6 +111,9 @@ Interfaces: [protocols.py](src/rag_eu_law/domain/protocols.py). Models:
 | 2026-10-19 | Streamlit UI calls the project code directly (one process); the pipeline is built once with `st.cache_resource`; the last answer is kept in `st.session_state` so rating buttons survive reruns | simplest for a small team; Streamlit reruns the script on every click | UI as a client of the FastAPI service |
 | 2026-10-19 | Supabase: accounts created by an admin (no sign-up in the app); the app holds only the anon key; row-level security: team reads all runs, inserts only as self (`user_id = auth.uid()`), may update only `rating` and `note` (column grant) | small closed team; the browser/server never holds an all-powerful key; saved questions and answers cannot be edited | public sign-up; service_role key in the app |
 | 2026-10-19 | One Supabase client per signed-in user (supabase-py swaps the user's token into PostgREST requests on sign-in and refresh; checked in its source) | each request runs as that user, so RLS applies | one shared client with the service key |
+| 2026-10-19 | Embeddings for deployment: ONNX `bge-small` via `fastembed` (`RAG_EMBEDDER=fastembed`, extra `index-lite`), not OpenAI embeddings | same model so retrieval is unchanged, no PyTorch (smaller image and RAM), no per-question cost, questions are not sent out for embedding | OpenAI embeddings (would change retrieval; needs re-eval) |
+| 2026-10-19 | Deployment Setup A: one Docker container (Streamlit + ONNX embeddings + index baked at build time), OpenAI Luna for answers, Supabase for login and history | small team experiment on a cloud host with 1-2 GB RAM; secrets only as runtime environment variables | Streamlit Community Cloud (index and PDFs not in the repo, memory limits); Setup B (internal host with Ollama) kept for UAT |
+| 2026-10-19 | Docker: `UV_NO_CACHE=1` (image 2.9 GB to 1.9 GB); ingestion in the image runs with `RAG_LLM_PROVIDER=ollama` because it never calls the LLM and no key exists at build time; pass a minimal `docker.env`, not the full `.env` | measured while building; the full `.env` would override `RAG_EMBEDDER` | baking keys into the image |
 | 2026-10-19 | Optional-dependency extras (`index`, `llm`, `api`) | light installs for early steps | one big dependency list |
 
 ## 5. Commands reference

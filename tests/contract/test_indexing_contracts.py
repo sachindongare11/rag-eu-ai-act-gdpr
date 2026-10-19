@@ -12,7 +12,11 @@ import pytest
 from rag_eu_law.domain.exceptions import IndexingError
 from rag_eu_law.domain.models import Regulation, SearchFilter
 from rag_eu_law.domain.protocols import Embedder, KeywordIndex, VectorStore
-from rag_eu_law.indexing.embedder import HashingEmbedder, SentenceTransformerEmbedder
+from rag_eu_law.indexing.embedder import (
+    FastEmbedEmbedder,
+    HashingEmbedder,
+    SentenceTransformerEmbedder,
+)
 from rag_eu_law.indexing.keyword_index import Bm25KeywordIndex
 from rag_eu_law.indexing.text import embedding_text
 from rag_eu_law.indexing.vector_store import ChromaVectorStore, InMemoryVectorStore
@@ -23,6 +27,11 @@ EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 
 EMBEDDER_FACTORIES: list[object] = [
     pytest.param(HashingEmbedder, id="hashing"),
+    pytest.param(
+        lambda: FastEmbedEmbedder(EMBEDDING_MODEL),
+        id="fastembed",
+        marks=pytest.mark.skipif(not RUN_SLOW, reason="set RAG_RUN_SLOW=1 (downloads a model)"),
+    ),
     pytest.param(
         lambda: SentenceTransformerEmbedder(EMBEDDING_MODEL),
         id="sentence-transformers",

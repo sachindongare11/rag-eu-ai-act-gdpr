@@ -8,7 +8,7 @@ from rag_eu_law.app.config import Settings
 from rag_eu_law.app.container import Container
 from rag_eu_law.domain.exceptions import ConfigurationError, IndexingError
 from rag_eu_law.domain.models import Regulation, SearchFilter
-from rag_eu_law.indexing.embedder import HashingEmbedder
+from rag_eu_law.indexing.embedder import FastEmbedEmbedder, HashingEmbedder
 from rag_eu_law.indexing.keyword_index import Bm25KeywordIndex
 from rag_eu_law.indexing.pipeline import IndexingPipeline
 from rag_eu_law.indexing.text import embedding_text, tokenize
@@ -78,6 +78,45 @@ def test_container_builds_the_configured_llm_client(tmp_path: Path) -> None:
         openai_api_key="test-key",
     )
     assert isinstance(Container(settings).llm, OpenAIClient)
+
+
+class FakeOnnxModel:
+    embedding_size = 3
+
+    def __init__(self) -> None:
+        self.seen: list[str] = []
+
+    def embed(self, texts: list[str], batch_size: int) -> list[list[float]]:
+        self.seen.extend(texts)
+        return [[1.0, 0.0, 0.0] for _ in texts]
+
+
+def test_fastembed_adds_the_query_prefix_only_for_queries() -> None:
+    embedder = FastEmbedEmbedder("any-model", query_prefix="Q: ")
+    model = FakeOnnxModel()
+    embedder._model = model
+    assert embedder.dimension == 3
+    embedder.embed(["document"])
+    embedder.embed_query("question")
+    assert model.seen == ["document", "Q: question"]
+
+
+def test_fastembed_errors_are_wrapped() -> None:
+    class Broken:
+        def embed(self, texts: list[str], batch_size: int) -> list[list[float]]:
+            raise RuntimeError("onnx failed")
+
+    embedder = FastEmbedEmbedder("any-model")
+    embedder._model = Broken()
+    with pytest.raises(IndexingError, match="onnx failed"):
+        embedder.embed(["x"])
+
+
+def test_container_builds_fastembed_with_cache_dir(tmp_path: Path) -> None:
+    settings = Settings(
+        _env_file=None, processed_dir=tmp_path, embedder="fastembed", embedding_cache_dir=tmp_path
+    )
+    assert isinstance(Container(settings).embedder, FastEmbedEmbedder)
 
 
 def test_container_rejects_unknown_names(tmp_path: Path) -> None:

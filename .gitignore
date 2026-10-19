@@ -13,3 +13,4 @@ data/history.sqlite*
 .claude/
 .DS_Store
 *.egg-info/
+docker.env

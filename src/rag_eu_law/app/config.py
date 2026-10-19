@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     vector_store: str = constants.DEFAULT_VECTOR_STORE
     embedder: str = constants.DEFAULT_EMBEDDER
     embedding_model: str = constants.DEFAULT_EMBEDDING_MODEL
+    embedding_cache_dir: Path | None = None
 
     embedding_batch_size: int = Field(default=constants.EMBEDDING_BATCH_SIZE, ge=1)
 
