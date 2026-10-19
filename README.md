@@ -55,7 +55,7 @@ flowchart LR
 ```
 
 Stage-by-stage class names, design decisions and their rejected alternatives are in
-[CLAUDE.md](CLAUDE.md).
+[docs/DESIGN.md](docs/DESIGN.md).
 
 ## Evaluation
 
@@ -104,6 +104,6 @@ eval/          questions and reports
 - Citations are checked for existence in the retrieved passages, not for whether the claim is
   faithful to them; a small local model can still over-read a source.
 - A regulation named anywhere in a question filters the whole search to that law, which can hide
-  the other law in cross-regulation questions (see eval question x02 in `CLAUDE.md`).
+  the other law in cross-regulation questions (see eval question x02 in `docs/DESIGN.md`).
 - The Anthropic client and the real cross-encoder reranker are only tested with fakes.
 

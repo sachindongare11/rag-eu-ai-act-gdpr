@@ -58,7 +58,7 @@ about 340 MB in its own process. Expect roughly 400-500 MB for the running app w
 asking at once, or a signed-in browser session (it needs a password).
 
 ## 0. Before you start
-- Supabase project set up as in [CLAUDE.md](CLAUDE.md) (SQL migration run, users created).
+- Supabase project set up as in [docs/DESIGN.md](docs/DESIGN.md) (SQL migration run, users created).
 - OpenAI key with a monthly spending limit set in the OpenAI dashboard.
 - The two PDFs in `data/raw/` (committed to the repo).
 

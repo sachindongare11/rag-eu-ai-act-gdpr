@@ -1,4 +1,7 @@
-# CLAUDE.md
+# Design notes
+
+Decisions, architecture, measured results and known limits. Keep this file current when the
+design changes. (Formerly `CLAUDE.md`; the overview is in the [README](../README.md).)
 
 ## 1. Project purpose
 Local RAG system answering questions about the GDPR (Regulation (EU) 2016/679) and the EU AI Act.
@@ -23,7 +26,7 @@ To use OpenAI instead, set in `.env`: `RAG_LLM_PROVIDER=openai` and `RAG_OPENAI_
 
 ### Shared history with Supabase (optional)
 Default is a local SQLite file and no login. For a team: (1) create a Supabase project; (2) run
-[supabase/migrations/0001_runs.sql](supabase/migrations/0001_runs.sql) in its SQL editor; (3) create
+[supabase/migrations/0001_runs.sql](../supabase/migrations/0001_runs.sql) in its SQL editor; (3) create
 each tester under Authentication > Users (sign-up is not exposed in the app); (4) in `.env` set
 `RAG_RUN_STORE=supabase`, `RAG_SUPABASE_URL=https://<project>.supabase.co` and
 `RAG_SUPABASE_ANON_KEY=<anon / publishable key>`. **Never put the `service_role` key in `.env`.**
@@ -38,37 +41,37 @@ flowchart LR
 ```
 | Stage | Owning class | Status |
 |---|---|---|
-| Load | `PyMuPdfLoader` ([loader.py](src/rag_eu_law/ingestion/loader.py)) | done |
-| Identify regulation | `SignatureRegulationDetector` ([identify.py](src/rag_eu_law/ingestion/identify.py)) | done |
-| Clean | `LegalTextCleaner` ([cleaner.py](src/rag_eu_law/ingestion/cleaner.py)) | done |
-| Parse | `LegalStructureParser` ([parser.py](src/rag_eu_law/ingestion/parser.py)) | done |
-| Chunk | `LegalStructureChunker` ([chunker.py](src/rag_eu_law/ingestion/chunker.py)) | done |
-| Orchestrate | `IngestionPipeline` ([pipeline.py](src/rag_eu_law/ingestion/pipeline.py)); writes `data/processed/chunks.jsonl` | done |
-| Embed | `SentenceTransformerEmbedder` (default), `HashingEmbedder` (tests) ([embedder.py](src/rag_eu_law/indexing/embedder.py)) | done |
-| Vector store | `ChromaVectorStore` (default), `InMemoryVectorStore` ([vector_store.py](src/rag_eu_law/indexing/vector_store.py)) | done |
-| Keyword index | `Bm25KeywordIndex` ([keyword_index.py](src/rag_eu_law/indexing/keyword_index.py)) | done |
-| Index orchestration | `IndexingPipeline` ([pipeline.py](src/rag_eu_law/indexing/pipeline.py)) | done |
-| Embed (lite) | `FastEmbedEmbedder` (ONNX, no PyTorch; same vectors as the default: cosine 1.0, 25/26 identical top-5 lists on the eval) ([embedder.py](src/rag_eu_law/indexing/embedder.py)) | done |
-| Deploy | [Dockerfile](Dockerfile), [docker/entrypoint.sh](docker/entrypoint.sh), guide in [DEPLOY.md](DEPLOY.md) | built and run locally, not deployed to a host (see DEPLOY.md) |
-| Cloud start-up | `ensure_index` ([bootstrap.py](src/rag_eu_law/app/bootstrap.py)); entrypoint [cloud/streamlit_app.py](cloud/streamlit_app.py) with [cloud/requirements.txt](cloud/requirements.txt) for Streamlit Community Cloud | built; verified in a clean venv locally, not on the platform |
-| Wiring | `Container` ([container.py](src/rag_eu_law/app/container.py)) | done |
-| Retrieve | `HybridRetriever` ([hybrid.py](src/rag_eu_law/retrieval/hybrid.py)) | done |
-| Reference parsing | `parse_references` ([references.py](src/rag_eu_law/retrieval/references.py)) | done |
-| Fusion | `reciprocal_rank_fusion` ([fusion.py](src/rag_eu_law/retrieval/fusion.py)) | done |
-| Rerank | `NoOpReranker` (default), `CrossEncoderReranker` ([reranker.py](src/rag_eu_law/retrieval/reranker.py)) | done |
-| Prompts | `SYSTEM_PROMPT`, `build_user_prompt` ([prompts.py](src/rag_eu_law/generation/prompts.py)) | done |
-| LLM | `OllamaClient` (default), `OpenAIClient`, `AnthropicClient` ([llm_clients.py](src/rag_eu_law/generation/llm_clients.py)) | done |
-| Citation check | `verify_citations` ([citations.py](src/rag_eu_law/generation/citations.py)) | done |
-| Generate | `GroundedAnswerGenerator` ([generator.py](src/rag_eu_law/generation/generator.py)) | done |
-| Evaluate | `EvalRunner`, `summarize`, `write_report` ([evaluation/](src/rag_eu_law/evaluation)); questions in [eval/questions.yaml](eval/questions.yaml) | done |
-| UI | `render` ([ui.py](src/rag_eu_law/app/ui.py)): Ask and History tabs, ratings | done |
-| Auth | `SupabaseAuthenticator` ([auth.py](src/rag_eu_law/app/auth.py)): email/password; each user gets a run store using their own token | done, one real sign-in verified |
-| History | `HistoryService` ([history.py](src/rag_eu_law/app/history.py)), `RunStore` protocol with `SqliteRunStore` (default), `SupabaseRunStore` ([supabase_store.py](src/rag_eu_law/storage/supabase_store.py)) and `InMemoryRunStore` ([storage/](src/rag_eu_law/storage)); file `data/history.sqlite` | done |
-| API | `create_api` ([api.py](src/rag_eu_law/app/api.py)): `POST /ask`, `GET /health` | done |
-| Ask (retrieve + generate) | `AskService` ([service.py](src/rag_eu_law/app/service.py)) | done |
+| Load | `PyMuPdfLoader` ([loader.py](../src/rag_eu_law/ingestion/loader.py)) | done |
+| Identify regulation | `SignatureRegulationDetector` ([identify.py](../src/rag_eu_law/ingestion/identify.py)) | done |
+| Clean | `LegalTextCleaner` ([cleaner.py](../src/rag_eu_law/ingestion/cleaner.py)) | done |
+| Parse | `LegalStructureParser` ([parser.py](../src/rag_eu_law/ingestion/parser.py)) | done |
+| Chunk | `LegalStructureChunker` ([chunker.py](../src/rag_eu_law/ingestion/chunker.py)) | done |
+| Orchestrate | `IngestionPipeline` ([pipeline.py](../src/rag_eu_law/ingestion/pipeline.py)); writes `data/processed/chunks.jsonl` | done |
+| Embed | `SentenceTransformerEmbedder` (default), `HashingEmbedder` (tests) ([embedder.py](../src/rag_eu_law/indexing/embedder.py)) | done |
+| Vector store | `ChromaVectorStore` (default), `InMemoryVectorStore` ([vector_store.py](../src/rag_eu_law/indexing/vector_store.py)) | done |
+| Keyword index | `Bm25KeywordIndex` ([keyword_index.py](../src/rag_eu_law/indexing/keyword_index.py)) | done |
+| Index orchestration | `IndexingPipeline` ([pipeline.py](../src/rag_eu_law/indexing/pipeline.py)) | done |
+| Embed (lite) | `FastEmbedEmbedder` (ONNX, no PyTorch; same vectors as the default: cosine 1.0, 25/26 identical top-5 lists on the eval) ([embedder.py](../src/rag_eu_law/indexing/embedder.py)) | done |
+| Deploy | [Dockerfile](../Dockerfile), [docker/entrypoint.sh](../docker/entrypoint.sh), guide in [DEPLOY.md](../DEPLOY.md) | built and run locally, not deployed to a host (see DEPLOY.md) |
+| Cloud start-up | `ensure_index` ([bootstrap.py](../src/rag_eu_law/app/bootstrap.py)); entrypoint [cloud/streamlit_app.py](../cloud/streamlit_app.py) with [cloud/requirements.txt](../cloud/requirements.txt) for Streamlit Community Cloud | built; verified in a clean venv locally, not on the platform |
+| Wiring | `Container` ([container.py](../src/rag_eu_law/app/container.py)) | done |
+| Retrieve | `HybridRetriever` ([hybrid.py](../src/rag_eu_law/retrieval/hybrid.py)) | done |
+| Reference parsing | `parse_references` ([references.py](../src/rag_eu_law/retrieval/references.py)) | done |
+| Fusion | `reciprocal_rank_fusion` ([fusion.py](../src/rag_eu_law/retrieval/fusion.py)) | done |
+| Rerank | `NoOpReranker` (default), `CrossEncoderReranker` ([reranker.py](../src/rag_eu_law/retrieval/reranker.py)) | done |
+| Prompts | `SYSTEM_PROMPT`, `build_user_prompt` ([prompts.py](../src/rag_eu_law/generation/prompts.py)) | done |
+| LLM | `OllamaClient` (default), `OpenAIClient`, `AnthropicClient` ([llm_clients.py](../src/rag_eu_law/generation/llm_clients.py)) | done |
+| Citation check | `verify_citations` ([citations.py](../src/rag_eu_law/generation/citations.py)) | done |
+| Generate | `GroundedAnswerGenerator` ([generator.py](../src/rag_eu_law/generation/generator.py)) | done |
+| Evaluate | `EvalRunner`, `summarize`, `write_report` ([evaluation/](../src/rag_eu_law/evaluation)); questions in [eval/questions.yaml](../eval/questions.yaml) | done |
+| UI | `render` ([ui.py](../src/rag_eu_law/app/ui.py)): Ask and History tabs, ratings | done |
+| Auth | `SupabaseAuthenticator` ([auth.py](../src/rag_eu_law/app/auth.py)): email/password; each user gets a run store using their own token | done, one real sign-in verified |
+| History | `HistoryService` ([history.py](../src/rag_eu_law/app/history.py)), `RunStore` protocol with `SqliteRunStore` (default), `SupabaseRunStore` ([supabase_store.py](../src/rag_eu_law/storage/supabase_store.py)) and `InMemoryRunStore` ([storage/](../src/rag_eu_law/storage)); file `data/history.sqlite` | done |
+| API | `create_api` ([api.py](../src/rag_eu_law/app/api.py)): `POST /ask`, `GET /health` | done |
+| Ask (retrieve + generate) | `AskService` ([service.py](../src/rag_eu_law/app/service.py)) | done |
 
-Interfaces: [protocols.py](src/rag_eu_law/domain/protocols.py). Models:
-[models.py](src/rag_eu_law/domain/models.py). Wiring: [container.py](src/rag_eu_law/app/container.py).
+Interfaces: [protocols.py](../src/rag_eu_law/domain/protocols.py). Models:
+[models.py](../src/rag_eu_law/domain/models.py). Wiring: [container.py](../src/rag_eu_law/app/container.py).
 
 ## 4. Decisions log
 | Date | Decision | Reason | Rejected |
@@ -128,7 +131,7 @@ Interfaces: [protocols.py](src/rag_eu_law/domain/protocols.py). Models:
 | `RAG_RUN_SLOW=1 uv run pytest tests/contract` | also runs the contract tests against the real bge model (downloads ~130 MB on first run) |
 | `uv run rag-eu-law ingest [--raw-dir DIR]` | ingest PDFs, write `data/processed/chunks.jsonl`, build Chroma + BM25 indexes |
 | `uv run rag-eu-law ask "<q>" [--regulation gdpr\|ai-act] [--article N] [--json] [--show-chunks]` | cited answer, or "Not covered by the provided documents" |
-| `uv run rag-eu-law eval [--questions P] [--output-dir D] [--retrieval-only]` | hit rate@5, citation accuracy, refusal accuracy; report in [eval/report.md](eval/report.md) |
+| `uv run rag-eu-law eval [--questions P] [--output-dir D] [--retrieval-only]` | hit rate@5, citation accuracy, refusal accuracy; report in [eval/report.md](../eval/report.md) |
 | `uv run uvicorn rag_eu_law.app.api:app [--port N]` | serve `POST /ask` (`{"question", "regulation"?, "article"?, "top_k"?}` -> `answer, citations[], retrieved_chunks[], latency_ms, disclaimer`) |
 | `uv run streamlit run src/rag_eu_law/app/ui.py` | web UI on http://localhost:8501 (uses the provider in `.env`; every question is saved to `data/history.sqlite`) |
 | `uv run pytest` | unit/contract/integration tests with coverage (real-PDF test skips if `data/raw` lacks PDFs) |
@@ -136,18 +139,18 @@ Interfaces: [protocols.py](src/rag_eu_law/domain/protocols.py). Models:
 ## 6. Conventions
 - New loader/cleaner/parser/chunker/embedder/store/LLM = new class implementing the matching
   protocol in `domain/protocols.py`, in its stage package. Never edit existing classes to add one.
-- Register concrete classes only in [container.py](src/rag_eu_law/app/container.py): add a factory to `EMBEDDER_FACTORIES` or `VECTOR_STORE_FACTORIES` and select it with `RAG_EMBEDDER` / `RAG_VECTOR_STORE`.
-- Constants live in [constants.py](src/rag_eu_law/domain/constants.py); config in
-  [config.py](src/rag_eu_law/app/config.py) (env prefix `RAG_`, see `.env.example`).
+- Register concrete classes only in [container.py](../src/rag_eu_law/app/container.py): add a factory to `EMBEDDER_FACTORIES` or `VECTOR_STORE_FACTORIES` and select it with `RAG_EMBEDDER` / `RAG_VECTOR_STORE`.
+- Constants live in [constants.py](../src/rag_eu_law/domain/constants.py); config in
+  [config.py](../src/rag_eu_law/app/config.py) (env prefix `RAG_`, see `.env.example`).
 - Each protocol gets a shared contract test in `tests/contract/`.
 - No `print` outside `app/cli.py`; raise exceptions from `domain/exceptions.py`.
 
 ## 7. Known issues and limits
-**Eval results** (2026-10-19, `qwen2.5:7b`, top_k=5, 20 answerable + 6 out-of-scope, full report in [eval/report.md](eval/report.md)):
+**Eval results** (2026-10-19, `qwen2.5:7b`, top_k=5, 20 answerable + 6 out-of-scope, full report in [eval/report.md](../eval/report.md)):
 retrieval hit rate@5 **100%** (mean recall 84%); citation accuracy **90%** (18/20); refusal accuracy
 **100%** (6/6); false refusal rate **5%** (1/20). Mean latency 5.0 s. Caveats: small set written by
 the implementer and checked against the ingested text, not independent; one run, no variance estimate.
-- **Local vs OpenAI** (same 26 questions, same retrieval; reports in [eval/local-qwen2.5-7b/](eval/local-qwen2.5-7b) and [eval/luna/](eval/luna)):
+- **Local vs OpenAI** (same 26 questions, same retrieval; reports in [eval/local-qwen2.5-7b/](../eval/local-qwen2.5-7b) and [eval/luna/](../eval/luna)):
 
   | | `qwen2.5:7b` (local) | `gpt-6-luna` (`reasoning_effort=low`) |
   |---|---|---|
@@ -229,7 +232,7 @@ Found by inspecting `data/raw/` (459-page AI Act PDF, 117-page GDPR PDF; all tex
 | 3 | Indexing (embedder, Chroma, BM25, container, pipeline) | done (ruff, mypy --strict, 112 tests + 36 slow contract tests against the real model) |
 | 4 | Retrieval (references, RRF, hybrid retriever, rerankers) | done (ruff, mypy --strict, 150 tests, 97% coverage) |
 | 5 | Generation (prompts, Ollama + Anthropic clients, citation verification, AskService) | done (ruff, mypy --strict, 181 tests, 97% coverage); real Ollama run checked by hand |
-| 6 | CLI: `ingest`, `ask` ([cli.py](src/rag_eu_law/app/cli.py)), JSON logging to stderr, 3-page sample integration test | done (ruff, mypy --strict, 192 tests, 97% coverage); `eval` command arrives with step 7 |
+| 6 | CLI: `ingest`, `ask` ([cli.py](../src/rag_eu_law/app/cli.py)), JSON logging to stderr, 3-page sample integration test | done (ruff, mypy --strict, 192 tests, 97% coverage); `eval` command arrives with step 7 |
 | 7 | Eval: 26 questions, `eval` command, report | done (ruff, mypy --strict, 205 tests, 97% coverage); numbers above |
 | 8 | API: `POST /ask`, `GET /health`, tests with fake container, run against the real index | done (ruff, mypy --strict, 218 tests, 98% coverage) |
 
