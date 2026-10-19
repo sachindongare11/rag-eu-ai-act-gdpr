@@ -50,6 +50,7 @@ flowchart LR
 | Index orchestration | `IndexingPipeline` ([pipeline.py](src/rag_eu_law/indexing/pipeline.py)) | done |
 | Embed (lite) | `FastEmbedEmbedder` (ONNX, no PyTorch; same vectors as the default: cosine 1.0, 25/26 identical top-5 lists on the eval) ([embedder.py](src/rag_eu_law/indexing/embedder.py)) | done |
 | Deploy | [Dockerfile](Dockerfile), [docker/entrypoint.sh](docker/entrypoint.sh), guide in [DEPLOY.md](DEPLOY.md) | built and run locally, not deployed to a host (see DEPLOY.md) |
+| Cloud start-up | `ensure_index` ([bootstrap.py](src/rag_eu_law/app/bootstrap.py)); entrypoint [cloud/streamlit_app.py](cloud/streamlit_app.py) with [cloud/requirements.txt](cloud/requirements.txt) for Streamlit Community Cloud | built; verified in a clean venv locally, not on the platform |
 | Wiring | `Container` ([container.py](src/rag_eu_law/app/container.py)) | done |
 | Retrieve | `HybridRetriever` ([hybrid.py](src/rag_eu_law/retrieval/hybrid.py)) | done |
 | Reference parsing | `parse_references` ([references.py](src/rag_eu_law/retrieval/references.py)) | done |
@@ -114,6 +115,7 @@ Interfaces: [protocols.py](src/rag_eu_law/domain/protocols.py). Models:
 | 2026-10-19 | Embeddings for deployment: ONNX `bge-small` via `fastembed` (`RAG_EMBEDDER=fastembed`, extra `index-lite`), not OpenAI embeddings | same model so retrieval is unchanged, no PyTorch (smaller image and RAM), no per-question cost, questions are not sent out for embedding | OpenAI embeddings (would change retrieval; needs re-eval) |
 | 2026-10-19 | Deployment Setup A: one Docker container (Streamlit + ONNX embeddings + index baked at build time), OpenAI Luna for answers, Supabase for login and history | small team experiment on a cloud host with 1-2 GB RAM; secrets only as runtime environment variables | Streamlit Community Cloud (index and PDFs not in the repo, memory limits); Setup B (internal host with Ollama) kept for UAT |
 | 2026-10-19 | Docker: `UV_NO_CACHE=1` (image 2.9 GB to 1.9 GB); ingestion in the image runs with `RAG_LLM_PROVIDER=ollama` because it never calls the LLM and no key exists at build time; pass a minimal `docker.env`, not the full `.env` | measured while building; the full `.env` would override `RAG_EMBEDDER` | baking keys into the image |
+| 2026-10-19 | Free hosting on Streamlit Community Cloud: entrypoint in `cloud/` with its own minimal `requirements.txt`; in-memory vector store; index built at first start from the committed PDFs; embedding batch size 2; `ui.main` takes a container factory so a start-up spinner can show after `set_page_config` | the platform has no build step and picks `uv.lock` first (per its docs) which would install PyTorch; memory limits are small (batch 64 peaked at 2.5 GB, batch 2 at 593 MB for build+Streamlit, 487 MB process peak with questions) | Chroma on the platform (sqlite version and size risks); root-level dependency files |
 | 2026-10-19 | Optional-dependency extras (`index`, `llm`, `api`) | light installs for early steps | one big dependency list |
 
 ## 5. Commands reference
@@ -231,6 +233,6 @@ Found by inspecting `data/raw/` (459-page AI Act PDF, 117-page GDPR PDF; all tex
 | 7 | Eval: 26 questions, `eval` command, report | done (ruff, mypy --strict, 205 tests, 97% coverage); numbers above |
 | 8 | API: `POST /ask`, `GET /health`, tests with fake container, run against the real index | done (ruff, mypy --strict, 218 tests, 98% coverage) |
 
-Steps 9-10 (after the original brief): OpenAI client (`gpt-6-luna`), run history (`RunStore`, SQLite) and the Streamlit UI are done (ruff, mypy --strict, 249 tests); verified by hand in the browser with Luna: answer, citations, sources, rating saved. Supabase auth + Postgres store added (one real sign-in, ask and rate verified, see section 7). Next: test with a second user; export of rated runs to eval questions.
+Steps 9-10 (after the original brief): OpenAI client (`gpt-6-luna`), run history (`RunStore`, SQLite) and the Streamlit UI are done (ruff, mypy --strict, 249 tests); verified by hand in the browser with Luna: answer, citations, sources, rating saved. Supabase auth + Postgres store added (one real sign-in, ask and rate verified, see section 7). Streamlit Community Cloud entrypoint added (verified locally in a clean venv only). Next: deploy it and test with a second user; export of rated runs to eval questions.
 
 All eight steps of the original brief are complete. Definition of done: `ingest` runs on both PDFs without errors and is idempotent (byte-identical `chunks.jsonl`, unchanged index counts); `ask` returns cited answers and refuses out-of-scope questions; ruff, mypy --strict and tests pass; eval numbers are in section 7.

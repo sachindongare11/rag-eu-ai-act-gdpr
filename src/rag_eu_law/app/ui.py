@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import streamlit as st
 
 from rag_eu_law.app.auth import AuthenticatedUser, Authenticator
@@ -32,8 +34,18 @@ def load_container() -> Container:
     return Container(Settings())
 
 
-def main(container: Container) -> None:
-    """Entry point: sign in first when the Supabase store is configured."""
+def configure_page() -> None:
+    """Must be the first Streamlit call of a run, so `main` does it before building anything."""
+    st.set_page_config(page_title="EU law Q&A", layout="wide")
+
+
+def main(container_factory: Callable[[], Container]) -> None:
+    """Entry point: sign in first when the Supabase store is configured.
+
+    The factory runs after the page is configured, so it may show a spinner while it works.
+    """
+    configure_page()
+    container = container_factory()
     authenticator = container.authenticator
     if authenticator is None:
         render(container.history_service)
@@ -46,7 +58,6 @@ def main(container: Container) -> None:
 
 
 def _login_form(authenticator: Authenticator) -> None:
-    st.set_page_config(page_title="EU law Q&A", layout="centered")
     st.title("Sign in")
     with st.form("login"):
         email = st.text_input("Email", key="login_email")
@@ -68,7 +79,6 @@ def _sign_out(user: AuthenticatedUser) -> None:
 
 
 def render(service: HistoryService, signed_in: AuthenticatedUser | None = None) -> None:
-    st.set_page_config(page_title="EU law Q&A", layout="wide")
     st.title("GDPR and EU AI Act: cited answers")
     user, search_filter = _sidebar(service, signed_in)
     ask_tab, history_tab = st.tabs(["Ask", "History"])
@@ -186,4 +196,4 @@ def _show_run(run: RunRecord) -> None:
 
 
 if __name__ == "__main__":
-    main(load_container())
+    main(load_container)

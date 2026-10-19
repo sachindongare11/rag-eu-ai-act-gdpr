@@ -58,7 +58,7 @@ def login_script() -> None:
     from rag_eu_law.app.ui import main  # noqa: PLC0415
     from tests.ui_support import shared_container  # noqa: PLC0415
 
-    main(shared_container())
+    main(shared_container)
 
 
 def _login_app() -> AppTest:

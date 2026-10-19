@@ -1,5 +1,44 @@
 # Deploying the Streamlit app (Setup A: cloud)
 
+Two routes: **A1 Streamlit Community Cloud (free, no Docker)** just below, or **A2 Docker on a
+host** (the rest of this file).
+
+## A1. Streamlit Community Cloud (free)
+
+Files: [cloud/streamlit_app.py](cloud/streamlit_app.py) (entrypoint),
+[cloud/requirements.txt](cloud/requirements.txt) (minimal: no PyTorch, no Chroma),
+[cloud/secrets.toml.example](cloud/secrets.toml.example).
+
+How it works: no build step exists on that platform, so the first start builds the search index
+from the PDFs in `data/raw` (committed to the repo) into memory and a temp folder; the vector store
+is the in-memory one (1,154 chunks). It is rebuilt each time the app wakes from sleep. Embedding
+runs in batches of 2 to keep memory low.
+
+Why `cloud/`: Community Cloud uses the first dependency file it finds, searching the entrypoint's
+folder first and then the repo root, and `uv.lock` has top priority. The repo-root `uv.lock` would
+otherwise pull in everything (including PyTorch), so the entrypoint lives in `cloud/` next to its
+own `requirements.txt` (per Streamlit's docs; confirm in the app log that the install used it).
+
+Steps (you do these in your browser; I cannot sign in for you):
+1. Push this repo to GitHub (done for the private repo `sachindongare11/rag-eu-ai-act-gdpr`).
+2. Sign in at https://share.streamlit.io with GitHub and allow access to the private repo.
+3. **Create app** → repository `sachindongare11/rag-eu-ai-act-gdpr`, branch `main`, main file
+   path `cloud/streamlit_app.py`.
+4. **Advanced settings**: Python **3.11** (or 3.12; the code needs 3.11+). In **Secrets** paste the
+   contents of `cloud/secrets.toml.example` with real values (OpenAI key, Supabase URL, anon key,
+   `RAG_RUN_STORE = "supabase"`). Never the Supabase `service_role` key.
+5. **Deploy**. The first load shows "Building the search index...". Then sign in with a Supabase user.
+
+Measured locally in a clean virtualenv with only `cloud/requirements.txt` (492 MB on disk; no
+PyTorch or Chroma): index build 19 s on a fast multi-core Mac (expect longer on the platform's
+1-2 cores), whole process peaked at 487 MB with two real questions answered (Streamlit itself adds
+roughly 90 MB). With the default batch size of 64 the build peaked at 2.5 GB, which is why the batch
+is 2. Streamlit's published free limits were unclear (690 MB to 2.7 GB in a 2024 FAQ; 1 GB in older
+posts), so if the app is killed for memory, fall back to route A2.
+
+Not verified: the real platform (install, limits, secrets handling, private-repo access), a
+signed-in session on it, and several users at once. Idle apps go to sleep and need a wake-up.
+
 What runs: the Streamlit UI in one Docker container. Embeddings are computed in the container with
 ONNX `bge-small` (no PyTorch). The answer comes from OpenAI (`gpt-6-luna`). Login and run history use
 Supabase. The search index (Chroma + BM25) is built inside the image from the two PDFs.
