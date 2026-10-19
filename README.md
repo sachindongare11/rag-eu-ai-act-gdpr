@@ -11,6 +11,15 @@ answer, the system says **"Not covered by the provided documents"** instead of g
 > (`P9_TA(2024)0138`), not the final Official Journal text of Regulation (EU) 2024/1689.
 > Wording and recital numbers may differ.
 
+## Demo
+
+![Answer with citations](docs/images/demo-answer.jpg)
+
+The answer lists only claims the retrieved articles support, each tagged with article, paragraph and
+PDF page. The sources panel shows the exact passages the model was given:
+
+![Retrieved sources](docs/images/demo-sources.jpg)
+
 ## What it does
 
 - **Reads the PDFs by legal structure**: recitals, chapters, articles, paragraphs and annexes become
@@ -26,6 +35,10 @@ answer, the system says **"Not covered by the provided documents"** instead of g
   configuration; adding one means adding a class and registering it in one place.
 
 ## Quick start (local)
+
+Put the two source PDFs in `data/raw/` first. Some copies of this repository include them and
+some do not; [data/raw/README.md](data/raw/README.md) says where to get them and which layouts the
+parser was tested on.
 
 ```bash
 uv sync --all-extras              # install

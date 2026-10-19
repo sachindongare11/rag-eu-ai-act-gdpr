@@ -1,0 +1,23 @@
+# rsync filter used by export_public.sh: what stays out of a public copy.
++ .env.example
+- .git/
+- .venv/
+- .env
+- .env.*
+- docker.env
+- .claude/
+- .mypy_cache/
+- .ruff_cache/
+- .pytest_cache/
+- .coverage
+- .DS_Store
+- __pycache__/
+- *.egg-info/
+# Source PDFs and everything generated from them or from use.
+- data/raw/*.pdf
+- data/processed/*
+- data/history.sqlite*
+# Personal interview notes, and the export tooling itself.
+- docs/INTERVIEW_SUMMARY.md
+- scripts/export_public.sh
+- scripts/public_excludes.txt
