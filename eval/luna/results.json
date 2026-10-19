@@ -1,0 +1,610 @@
+{
+  "summary": {
+    "answerable_questions": 20,
+    "out_of_scope_questions": 6,
+    "retrieval_hit_rate_at_k": 1.0,
+    "mean_retrieval_recall": 0.8375,
+    "citation_accuracy": 0.85,
+    "false_refusal_rate": 0.05,
+    "refusal_accuracy": 1.0,
+    "mean_latency_ms": 5424.930929499589,
+    "by_type": {
+      "direct_lookup": {
+        "questions": 7,
+        "retrieval_hit_rate": 1.0
+      },
+      "concept": {
+        "questions": 7,
+        "retrieval_hit_rate": 1.0
+      },
+      "cross_regulation": {
+        "questions": 6,
+        "retrieval_hit_rate": 1.0
+      }
+    }
+  },
+  "results": [
+    {
+      "question_id": "d01",
+      "type": "direct_lookup",
+      "question": "What does GDPR Article 17 say?",
+      "retrieved": [
+        "GDPR:art17:para1:seq0",
+        "GDPR:art17:para2:seq0",
+        "GDPR:art17:para3:seq0",
+        "GDPR:rec172:seq0",
+        "GDPR:art19:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "GDPR Article 17 gives a data subject the right to obtain erasure of their personal data without undue delay, and requires the controller to erase it when one of the listed grounds applies\u2014for example, when the data are no longer needed, consent is withdrawn with no other legal basis, the data were unlawfully processed, or another listed condition is met. [GDPR Art. 17(1), p. 61]\n\nIf the controller made the data public and must erase them, it must take reasonable steps, considering available technology and implementation costs, to inform other controllers processing the data of the erasure request. [GDPR Art. 17(2), p. 61]\n\nThe erasure provisions do not apply to the extent processing is necessary for specified purposes, including freedom of expression and information, legal obligations or public tasks, certain public-health and research purposes, or legal claims. [GDPR Art. 17(3), p. 61]",
+      "citations": [
+        "[GDPR Art. 17(1), p. 61]",
+        "[GDPR Art. 17(2), p. 61]",
+        "[GDPR Art. 17(3), p. 61]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 4172.448124998482,
+      "error": null
+    },
+    {
+      "question_id": "d02",
+      "type": "direct_lookup",
+      "question": "What does Article 5 of the AI Act prohibit?",
+      "retrieved": [
+        "AI_ACT:art5:para8:seq0",
+        "AI_ACT:art5:para1:seq0",
+        "AI_ACT:art5:para5:seq0",
+        "AI_ACT:art5:para1:seq1",
+        "AI_ACT:art5:para7:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "Article 5 prohibits the AI practices listed in paragraph 1, including certain manipulative or vulnerability-exploiting systems, specified social scoring, criminal-risk assessments based solely on profiling or personality traits, untargeted scraping to create or expand facial-recognition databases, certain workplace or education emotion inference, and certain biometric categorisation. [AI Act Art. 5(1), p. 181] [AI Act Art. 5(1), p. 183]\n\nIt also prohibits real-time remote biometric identification in publicly accessible spaces for law enforcement, except where its use is strictly necessary for specified objectives and subject to the article\u2019s conditions. [AI Act Art. 5(1), p. 183] A Member State may permit such use within those limits and conditions, and may adopt more restrictive rules. [AI Act Art. 5(5), p. 188]\n\nArticle 5 does not affect prohibitions that apply when an AI practice infringes other Union law. [AI Act Art. 5(8), p. 189]",
+      "citations": [
+        "[AI Act Art. 5(1), p. 181]",
+        "[AI Act Art. 5(1), p. 183]",
+        "[AI Act Art. 5(5), p. 188]",
+        "[AI Act Art. 5(8), p. 189]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 4310.265332984272,
+      "error": null
+    },
+    {
+      "question_id": "d03",
+      "type": "direct_lookup",
+      "question": "What does GDPR Article 22 say about automated individual decision-making?",
+      "retrieved": [
+        "GDPR:art22:seq0",
+        "GDPR:rec71:seq0",
+        "GDPR:art13:para2:seq0",
+        "GDPR:rec71:seq1",
+        "GDPR:art14:para2:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "GDPR Article 22 gives a person the right not to be subject to a decision based solely on automated processing, including profiling, if it produces legal effects concerning them or similarly significantly affects them. [GDPR Art. 22, p. 64]\n\nThat right does not apply when the decision is necessary for a contract, authorised by Union or Member State law with suitable safeguards, or based on the person\u2019s explicit consent. [GDPR Art. 22, p. 64]\n\nFor decisions based on contractual necessity or explicit consent, the controller must provide safeguards including the right to obtain human intervention, express the person\u2019s point of view, and contest the decision. [GDPR Art. 22, p. 64]\n\nSuch decisions generally must not be based on special categories of personal data, unless the specified Article 9 conditions and suitable safeguards apply. [GDPR Art. 22, p. 64]",
+      "citations": [
+        "[GDPR Art. 22, p. 64]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 3901.182749978034,
+      "error": null
+    },
+    {
+      "question_id": "d04",
+      "type": "direct_lookup",
+      "question": "How does Article 3 of the AI Act define an AI system?",
+      "retrieved": [
+        "AI_ACT:art3:para1:seq0",
+        "AI_ACT:art3:para18:seq0",
+        "AI_ACT:art3:para17:seq0",
+        "AI_ACT:art3:para39:seq0",
+        "AI_ACT:art3:para66:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "An AI system is a machine-based system designed to operate with varying levels of autonomy. It may adapt after deployment and, for explicit or implicit objectives, infers from its inputs how to generate outputs\u2014such as predictions, content, recommendations or decisions\u2014that can influence physical or virtual environments. [AI Act Art. 3(1), p. 166]",
+      "citations": [
+        "[AI Act Art. 3(1), p. 166]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 1917.6499170134775,
+      "error": null
+    },
+    {
+      "question_id": "d05",
+      "type": "direct_lookup",
+      "question": "What does GDPR Article 33 require after a personal data breach?",
+      "retrieved": [
+        "GDPR:art33:seq0",
+        "GDPR:art34:seq0",
+        "GDPR:art4:para12:seq0",
+        "GDPR:rec85:seq0",
+        "GDPR:rec87:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "After a personal data breach, the controller must notify the competent supervisory authority without undue delay and, where feasible, within 72 hours of becoming aware of it\u2014unless the breach is unlikely to pose a risk to people\u2019s rights and freedoms. If notification is later than 72 hours, the controller must explain the delay. [GDPR Art. 33, p. 71]\n\nThe notification must describe the breach and, where possible, the affected data subjects and records; give contact details for the data protection officer or another contact; describe likely consequences; and describe measures taken or planned to address the breach and mitigate its effects. Information may be provided in phases if it cannot all be supplied at once. [GDPR Art. 33, p. 71]\n\nThe processor must notify the controller without undue delay after becoming aware of a breach, and the controller must document breaches, their effects, and remedial action. [GDPR Art. 33, p. 71]",
+      "citations": [
+        "[GDPR Art. 33, p. 71]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 3528.5865829791874,
+      "error": null
+    },
+    {
+      "question_id": "d06",
+      "type": "direct_lookup",
+      "question": "What transparency obligations does Article 50 of the AI Act impose?",
+      "retrieved": [
+        "AI_ACT:art50:para6:seq0",
+        "AI_ACT:art50:para5:seq0",
+        "AI_ACT:art50:para4:seq0",
+        "AI_ACT:art50:para7:seq0",
+        "AI_ACT:art50:para1:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "Article 50 imposes these transparency obligations:\n\n- **Direct interaction:** Providers must ensure that AI systems intended to interact directly with people inform them that they are interacting with AI, unless this is obvious to a reasonably well-informed, observant and circumspect person in the circumstances. An exception applies to certain systems authorised by law for criminal-offence purposes, subject to safeguards; it does not apply if the systems are available for the public to report an offence. [AI Act Art. 50(1), p. 282]\n- **Deepfakes and certain public-interest text:** Deployers must disclose when image, audio or video content is artificially generated or manipulated to constitute a deepfake. Deployers must also disclose when AI-generated or manipulated text is published to inform the public on matters of public interest. The Article provides exceptions for specified law-authorised criminal-offence uses and, for text, human review or editorial control with a person holding editorial responsibility. For evidently artistic, creative, satirical, fictional or analogous works or programmes, disclosure of the existence of the generated or manipulated content is sufficient and must not hamper the work\u2019s display or enjoyment. [AI Act Art. 50(4), p. 284]\n- **Timing and accessibility:** The information required under paragraphs 1 to 4 must be given clearly and distinguishably, no later than the first interaction or exposure, and must meet applicable accessibility requirements. [AI Act Art. 50(5), p. 285]\n- **Other requirements remain:** These obligations do not affect Chapter III requirements or other transparency obligations under Union or national law for deployers. [AI Act Art. 50(6), p. 285]\n- **Codes of practice:** The AI Office is to encourage and facilitate Union-level codes of practice on detecting and labelling generated or manipulated content; the Commission may approve them or, if they are inadequate, specify common implementation rules by implementing act. [AI Act Art. 50(7), p. 285]",
+      "citations": [
+        "[AI Act Art. 50(1), p. 282]",
+        "[AI Act Art. 50(4), p. 284]",
+        "[AI Act Art. 50(5), p. 285]",
+        "[AI Act Art. 50(6), p. 285]",
+        "[AI Act Art. 50(7), p. 285]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 9836.021124996478,
+      "error": null
+    },
+    {
+      "question_id": "d07",
+      "type": "direct_lookup",
+      "question": "What does Recital 47 of the GDPR say about legitimate interests?",
+      "retrieved": [
+        "GDPR:rec47:seq0",
+        "GDPR:rec69:seq0",
+        "GDPR:rec113:seq0",
+        "GDPR:art49:para1:seq1",
+        "GDPR:rec50:seq1"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "Recital 47 says a controller\u2019s or third party\u2019s legitimate interests may provide a basis for processing if they are not overridden by the data subject\u2019s interests or fundamental rights and freedoms, taking account of the data subject\u2019s reasonable expectations in the context of their relationship with the controller. It says the assessment requires care, and notes that preventing fraud and direct marketing may constitute legitimate interests. [GDPR Recital 47, p. 12]\n\nRecital 47 explains the law but is not a binding article.",
+      "citations": [
+        "[GDPR Recital 47, p. 12]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 4390.447084006155,
+      "error": null
+    },
+    {
+      "question_id": "c01",
+      "type": "concept",
+      "question": "When is a data protection impact assessment required?",
+      "retrieved": [
+        "GDPR:art35:para2:seq0",
+        "GDPR:art35:para3:seq0",
+        "GDPR:art35:para4:seq1",
+        "GDPR:rec84:seq0",
+        "GDPR:rec90:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "A data protection impact assessment is required, in particular, for:\n\n- Systematic and extensive evaluation of people based on automated processing, including profiling, where decisions produce legal effects or similarly significantly affect them. [GDPR Art. 35(3)(a), p. 73]\n- Large-scale processing of special-category data or personal data about criminal convictions and offences. [GDPR Art. 35(3)(b), p. 73]\n- Large-scale systematic monitoring of a publicly accessible area. [GDPR Art. 35(3)(c), p. 73]\n\nThe cited recital also says an assessment should be carried out before processing likely to result in high risk to people\u2019s rights and freedoms; this is explanatory recital text, not a binding article. [GDPR Recital 90, p. 25]",
+      "citations": [
+        "[GDPR Art. 35(3)(a), p. 73]",
+        "[GDPR Art. 35(3)(b), p. 73]",
+        "[GDPR Art. 35(3)(c), p. 73]",
+        "[GDPR Recital 90, p. 25]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 2817.9142079898156,
+      "error": null
+    },
+    {
+      "question_id": "c02",
+      "type": "concept",
+      "question": "What are the lawful bases for processing personal data?",
+      "retrieved": [
+        "GDPR:rec50:seq0",
+        "GDPR:rec39:seq0",
+        "GDPR:rec46:seq0",
+        "GDPR:art6:para1:seq0",
+        "GDPR:rec40:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "Processing is lawful if at least one of these bases applies: consent for one or more specific purposes; necessity to perform a contract or take pre-contractual steps at the person\u2019s request; compliance with a legal obligation; protection of someone\u2019s vital interests; performance of a task in the public interest or exercise of official authority; or, subject to the stated balancing test, the controller\u2019s or a third party\u2019s legitimate interests. [GDPR Art. 6(1), p. 51]",
+      "citations": [
+        "[GDPR Art. 6(1), p. 51]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 7112.594333011657,
+      "error": null
+    },
+    {
+      "question_id": "c03",
+      "type": "concept",
+      "question": "What are the conditions for valid consent under the GDPR?",
+      "retrieved": [
+        "GDPR:art7:seq0",
+        "GDPR:rec43:seq0",
+        "GDPR:rec42:seq0",
+        "GDPR:rec32:seq0",
+        "GDPR:art49:para1:seq0"
+      ],
+      "retrieval_recall": 0.5,
+      "retrieval_hit": true,
+      "answer": "Valid consent should be freely given, specific, informed, and unambiguous, expressed through a clear affirmative act; silence, pre-ticked boxes, and inactivity do not constitute consent. These details come from a recital, which explains the law but is not a binding article. [GDPR Recital 32, p. 8]\n\nThe controller must be able to demonstrate consent. If consent appears in a written declaration about other matters, it must be clearly distinguishable, intelligible, easily accessible, and in clear, plain language. [GDPR Art. 7, p. 53]\n\nFor consent to be informed, the data subject should know at least the controller\u2019s identity and the purposes of processing; this detail comes from a recital, which explains the law but is not a binding article. [GDPR Recital 42, p. 11]\n\nConsent must be as easy to withdraw as to give, and withdrawal does not affect the lawfulness of processing before withdrawal. [GDPR Art. 7, p. 53]\n\nWhen assessing whether consent is freely given, account must be taken of whether a contract or service is conditional on consent to processing unnecessary for that contract. [GDPR Art. 7, p. 53]",
+      "citations": [
+        "[GDPR Recital 32, p. 8]",
+        "[GDPR Art. 7, p. 53]",
+        "[GDPR Recital 42, p. 11]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 10394.591625023168,
+      "error": null
+    },
+    {
+      "question_id": "c04",
+      "type": "concept",
+      "question": "What obligations do providers of high-risk AI systems have?",
+      "retrieved": [
+        "AI_ACT:rec85:seq0",
+        "AI_ACT:art24:para3:seq0",
+        "AI_ACT:art16:seq0",
+        "AI_ACT:art17:para3:seq0",
+        "AI_ACT:art22:para1:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "Providers of high-risk AI systems must:\n\n- Ensure their systems meet the requirements in Section 2, and identify themselves on the system or, where that is not possible, on its packaging or accompanying documentation. [AI Act Art. 16, p. 217]\n- Maintain a compliant quality management system and keep the required documentation and, when under their control, automatically generated logs. [AI Act Art. 16, p. 217]\n- Ensure the system undergoes the relevant conformity assessment before being placed on the market or put into service; draw up an EU declaration of conformity; affix the CE marking; and meet the registration obligations. [AI Act Art. 16, p. 217]\n- Take necessary corrective actions and provide required information, demonstrate conformity when a national competent authority makes a reasoned request, and meet the specified accessibility requirements. [AI Act Art. 16, p. 217]\n- If established in a third country, appoint an authorised representative established in the Union by written mandate before making the system available on the Union market. [AI Act Art. 22(1), p. 227]\n\nProviders subject to quality-management obligations under relevant sectoral Union law may include the listed aspects in the quality management system under that law. [AI Act Art. 17(3), p. 221]",
+      "citations": [
+        "[AI Act Art. 16, p. 217]",
+        "[AI Act Art. 22(1), p. 227]",
+        "[AI Act Art. 17(3), p. 221]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 3931.959542009281,
+      "error": null
+    },
+    {
+      "question_id": "c05",
+      "type": "concept",
+      "question": "Which AI systems are classified as high-risk?",
+      "retrieved": [
+        "AI_ACT:art80:para1:seq0",
+        "AI_ACT:art2:para2:seq0",
+        "AI_ACT:rec61:seq0",
+        "AI_ACT:rec52:seq0",
+        "AI_ACT:art6:para2:seq0"
+      ],
+      "retrieval_recall": 0.5,
+      "retrieval_hit": true,
+      "answer": "AI systems covered by Article 6(1) are classified as high-risk, and AI systems referred to in Annex III are also considered high-risk. [AI Act Art. 6(2), p. 191]\n\nFor stand-alone AI systems, a recital describes the criteria as intended purpose, high risk of harm to health, safety, or fundamental rights, and use in specified areas; this is explanatory recital text, not a binding article. [AI Act Recital 52, p. 48]\n\nThe recital also identifies certain AI systems used by judicial authorities to research and interpret facts and law or apply law to specific facts as high-risk, while excluding purely ancillary administrative systems that do not affect the administration of justice in individual cases. This is explanatory recital text, not a binding article. [AI Act Recital 61, p. 61]",
+      "citations": [
+        "[AI Act Art. 6(2), p. 191]",
+        "[AI Act Recital 52, p. 48]",
+        "[AI Act Recital 61, p. 61]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 3124.8140419775154,
+      "error": null
+    },
+    {
+      "question_id": "c06",
+      "type": "concept",
+      "question": "What fines apply when the AI Act's prohibited practices are infringed?",
+      "retrieved": [
+        "AI_ACT:art100:para2:seq0",
+        "AI_ACT:art99:para3:seq0",
+        "AI_ACT:art5:para8:seq0",
+        "AI_ACT:art101:seq0",
+        "AI_ACT:art99:para8:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "Non-compliance with the AI Act\u2019s prohibition of prohibited practices is subject to administrative fines of up to EUR 35 million or, for an undertaking, up to 7% of its total worldwide annual turnover for the preceding financial year, whichever is higher. [AI Act Art. 99(3), p. 391]\n\nFor Union institutions, bodies, offices and agencies, the maximum fine is EUR 1.5 million. [AI Act Art. 100(2), p. 397] Each Member State sets the extent to which fines may be imposed on its public authorities and bodies. [AI Act Art. 99(8), p. 394]",
+      "citations": [
+        "[AI Act Art. 99(3), p. 391]",
+        "[AI Act Art. 100(2), p. 397]",
+        "[AI Act Art. 99(8), p. 394]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 7113.034125010017,
+      "error": null
+    },
+    {
+      "question_id": "c07",
+      "type": "concept",
+      "question": "What information must a controller give a data subject who asks for access to their personal data?",
+      "retrieved": [
+        "GDPR:rec64:seq0",
+        "GDPR:art15:seq0",
+        "GDPR:rec63:seq0",
+        "GDPR:rec57:seq0",
+        "GDPR:art13:para3:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "If the controller processes the person\u2019s personal data, it must provide access to the data and confirm that processing is taking place, along with the purposes, categories of data, recipients, and\u2014where possible\u2014the expected storage period or the criteria used to determine it. [GDPR Art. 15, p. 60]\n\nIt must also provide information about the person\u2019s relevant rights and how to complain to a supervisory authority; available source information if the data was not collected from them; and, where applicable, information about automated decision-making, including meaningful information about its logic, significance, and envisaged consequences. [GDPR Art. 15, p. 60]\n\nFor transfers to a third country or international organisation, the controller must provide information about the relevant safeguards, and it must provide a copy of the personal data being processed. [GDPR Art. 15, p. 60]",
+      "citations": [
+        "[GDPR Art. 15, p. 60]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 3224.7657499974594,
+      "error": null
+    },
+    {
+      "question_id": "x01",
+      "type": "cross_regulation",
+      "question": "How does the AI Act refer to GDPR on biometric data?",
+      "retrieved": [
+        "AI_ACT:art3:para36:seq0",
+        "AI_ACT:art5:para1:seq1",
+        "AI_ACT:art26:para10:seq1",
+        "AI_ACT:rec38:seq0",
+        "AI_ACT:art5:para7:seq0"
+      ],
+      "retrieval_recall": 0.75,
+      "retrieval_hit": true,
+      "answer": "The provided documents do not explain how the AI Act refers to the GDPR on biometric data. They refer instead to Article 10 of Directive (EU) 2016/680 in a recital discussing real-time remote biometric identification for law enforcement; that recital is explanatory, not a binding article. [AI Act Recital 38, p. 37]",
+      "citations": [
+        "[AI Act Recital 38, p. 37]"
+      ],
+      "refused": false,
+      "citation_correct": false,
+      "latency_ms": 2538.679375022184,
+      "error": null
+    },
+    {
+      "question_id": "x02",
+      "type": "cross_regulation",
+      "question": "May providers of high-risk AI systems process special categories of personal data to detect bias, and how does this relate to GDPR Article 9?",
+      "retrieved": [
+        "GDPR:art9:para4:seq0",
+        "GDPR:art9:para1:seq0",
+        "GDPR:art9:para3:seq0",
+        "GDPR:art9:para2:seq0",
+        "GDPR:art9:para2:seq1"
+      ],
+      "retrieval_recall": 0.5,
+      "retrieval_hit": true,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": false,
+      "latency_ms": 1340.8571250038221,
+      "error": null
+    },
+    {
+      "question_id": "x03",
+      "type": "cross_regulation",
+      "question": "How does the fundamental rights impact assessment under the AI Act relate to a GDPR data protection impact assessment?",
+      "retrieved": [
+        "AI_ACT:art27:para4:seq0",
+        "AI_ACT:rec96:seq0",
+        "AI_ACT:art27:para2:seq0",
+        "AI_ACT:art27:para1:seq0",
+        "AI_ACT:art27:para5:seq0"
+      ],
+      "retrieval_recall": 0.5,
+      "retrieval_hit": true,
+      "answer": "If any obligations under the AI Act fundamental rights impact assessment have already been met through a GDPR data protection impact assessment, the fundamental rights assessment must complement the data protection assessment.[AI Act Art. 27(4), p. 245]",
+      "citations": [
+        "[AI Act Art. 27(4), p. 245]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 1683.1881249963772,
+      "error": null
+    },
+    {
+      "question_id": "x04",
+      "type": "cross_regulation",
+      "question": "Does the AI Act change how Union data protection law applies to personal data processed by AI systems?",
+      "retrieved": [
+        "AI_ACT:art2:para7:seq0",
+        "AI_ACT:rec69:seq0",
+        "AI_ACT:rec10:seq0",
+        "AI_ACT:art59:para3:seq0",
+        "AI_ACT:rec128:seq0"
+      ],
+      "retrieval_recall": 1.0,
+      "retrieval_hit": true,
+      "answer": "No. Union data protection law continues to apply to personal data processed in connection with the AI Act, and the AI Act does not affect the listed EU data protection and privacy laws, subject to the arrangements in Articles 10(5) and 59. [AI Act Art. 2(7), p. 164]\n\nThe AI Act also does not displace data controllers\u2019 and processors\u2019 existing data-protection obligations or data subjects\u2019 rights. [AI Act Recital 10, p. 12] This recital explains the law but is not itself binding.",
+      "citations": [
+        "[AI Act Art. 2(7), p. 164]",
+        "[AI Act Recital 10, p. 12]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 2897.314792004181,
+      "error": null
+    },
+    {
+      "question_id": "x05",
+      "type": "cross_regulation",
+      "question": "How does the AI Act's ban on real-time remote biometric identification relate to the GDPR rules on special categories of data?",
+      "retrieved": [
+        "AI_ACT:rec17:seq0",
+        "AI_ACT:rec38:seq0",
+        "AI_ACT:art5:para7:seq0",
+        "AI_ACT:rec39:seq0",
+        "AI_ACT:art5:para4:seq0"
+      ],
+      "retrieval_recall": 0.5,
+      "retrieval_hit": true,
+      "answer": "The AI Act\u2019s rules for real-time remote biometric identification in publicly accessible spaces for law-enforcement purposes operate as a specific framework for that use and the biometric-data processing it involves. [AI Act Recital 38, p. 37] Recital 38 explains that this framework applies as *lex specialis* in relation to the biometric-data rules in Article 10 of the Law Enforcement Directive; it does not state that the GDPR\u2019s special-category rules govern that law-enforcement use. [AI Act Recital 38, p. 37]\n\nFor biometric identification outside that law-enforcement context, the AI Act recital says processing should continue to comply with the otherwise applicable requirements, and notes that GDPR Article 9(1) prohibits biometric-data processing subject to limited exceptions. [AI Act Recital 39, p. 38] This is an explanation in a recital, not a binding article. [AI Act Recital 39, p. 38]",
+      "citations": [
+        "[AI Act Recital 38, p. 37]",
+        "[AI Act Recital 39, p. 38]"
+      ],
+      "refused": false,
+      "citation_correct": false,
+      "latency_ms": 3287.775042001158,
+      "error": null
+    },
+    {
+      "question_id": "x06",
+      "type": "cross_regulation",
+      "question": "Which GDPR provisions are relevant to automated decisions made by high-risk AI systems about people?",
+      "retrieved": [
+        "GDPR:art22:seq0",
+        "GDPR:rec91:seq0",
+        "GDPR:rec157:seq0",
+        "GDPR:rec84:seq0",
+        "GDPR:art35:para1:seq0"
+      ],
+      "retrieval_recall": 0.5,
+      "retrieval_hit": true,
+      "answer": "- **GDPR Article 22** is relevant where a decision is based solely on automated processing, including profiling, and produces legal effects or similarly significantly affects a person; it sets out exceptions and, in specified cases, safeguards including human intervention and the right to contest the decision. [GDPR Art. 22, p. 64]\n- **GDPR Article 35(1)** requires a prior data protection impact assessment where processing, including processing using new technologies, is likely to result in a high risk to people\u2019s rights and freedoms. [GDPR Art. 35(1), p. 72]\n- **Recital 91**, which explains the law but is not a binding article, says a data protection impact assessment should also be made for decisions about specific people following systematic and extensive evaluation based on profiling, among other circumstances. [GDPR Recital 91, p. 25]",
+      "citations": [
+        "[GDPR Art. 22, p. 64]",
+        "[GDPR Art. 35(1), p. 72]",
+        "[GDPR Recital 91, p. 25]"
+      ],
+      "refused": false,
+      "citation_correct": true,
+      "latency_ms": 29697.196499997517,
+      "error": null
+    },
+    {
+      "question_id": "o01",
+      "type": "out_of_scope",
+      "question": "What is the capital of France?",
+      "retrieved": [
+        "AI_ACT:art3:para62:seq0",
+        "GDPR:rec170:seq0",
+        "AI_ACT:rec176:seq0",
+        "GDPR:art45:para8:seq0",
+        "AI_ACT:rec150:seq0"
+      ],
+      "retrieval_recall": null,
+      "retrieval_hit": null,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": null,
+      "latency_ms": 1243.4336250007618,
+      "error": null
+    },
+    {
+      "question_id": "o02",
+      "type": "out_of_scope",
+      "question": "How do I bake sourdough bread at home?",
+      "retrieved": [
+        "AI_ACT:art41:para4:seq0",
+        "AI_ACT:art41:para5:seq0",
+        "GDPR:rec143:seq0",
+        "GDPR:rec4:seq0",
+        "AI_ACT:art7:para2:seq1"
+      ],
+      "retrieval_recall": null,
+      "retrieval_hit": null,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": null,
+      "latency_ms": 7244.321292004315,
+      "error": null
+    },
+    {
+      "question_id": "o03",
+      "type": "out_of_scope",
+      "question": "What does the California Consumer Privacy Act say about the right to delete?",
+      "retrieved": [
+        "AI_ACT:rec48:seq0",
+        "AI_ACT:art78:para2:seq0",
+        "AI_ACT:art60:para5:seq0",
+        "AI_ACT:rec43:seq0",
+        "AI_ACT:rec28:seq0"
+      ],
+      "retrieval_recall": null,
+      "retrieval_hit": null,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": null,
+      "latency_ms": 6090.095165971434,
+      "error": null
+    },
+    {
+      "question_id": "o04",
+      "type": "out_of_scope",
+      "question": "What are the penalties under the UK Data Protection Act 2018?",
+      "retrieved": [
+        "GDPR:art84:seq0",
+        "AI_ACT:rec168:seq0",
+        "GDPR:rec19:seq0",
+        "AI_ACT:rec180:seq0",
+        "GDPR:art83:para5:seq0"
+      ],
+      "retrieval_recall": null,
+      "retrieval_hit": null,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": null,
+      "latency_ms": 7163.245708012255,
+      "error": null
+    },
+    {
+      "question_id": "o05",
+      "type": "out_of_scope",
+      "question": "Who won the 2022 FIFA World Cup?",
+      "retrieved": [
+        "AI_ACT:rec141:seq1",
+        "AI_ACT:art3:para58:seq0",
+        "GDPR:art96:seq0",
+        "AI_ACT:art60:para4:seq1",
+        "AI_ACT:annexX:seq0"
+      ],
+      "retrieval_recall": null,
+      "retrieval_hit": null,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": null,
+      "latency_ms": 7101.764499995625,
+      "error": null
+    },
+    {
+      "question_id": "o06",
+      "type": "out_of_scope",
+      "question": "Does the Digital Services Act require platforms to remove illegal content within 24 hours?",
+      "retrieved": [
+        "AI_ACT:rec136:seq0",
+        "AI_ACT:art50:para4:seq0",
+        "AI_ACT:rec120:seq0",
+        "AI_ACT:rec134:seq0",
+        "AI_ACT:rec133:seq0"
+      ],
+      "retrieval_recall": null,
+      "retrieval_hit": null,
+      "answer": "Not covered by the provided documents",
+      "citations": [],
+      "refused": true,
+      "citation_correct": null,
+      "latency_ms": 984.058375004679,
+      "error": null
+    }
+  ]
+}
