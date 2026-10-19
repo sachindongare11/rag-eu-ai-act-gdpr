@@ -20,7 +20,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))  # the repo uses a src layout and is 
 from rag_eu_law.app.bootstrap import ensure_index  # noqa: E402
 from rag_eu_law.app.config import Settings  # noqa: E402
 from rag_eu_law.app.container import Container  # noqa: E402
-from rag_eu_law.app.ui import main  # noqa: E402
+from rag_eu_law.app.ui import configure_page, main  # noqa: E402
+from rag_eu_law.domain.exceptions import ConfigurationError  # noqa: E402
 
 WORK_DIR = Path(tempfile.gettempdir()) / "rag-eu-law"
 DEFAULTS = {
@@ -33,6 +34,30 @@ DEFAULTS = {
     "RAG_EMBEDDING_CACHE_DIR": str(WORK_DIR / "models"),
     "RAG_HISTORY_DB_PATH": str(WORK_DIR / "history.sqlite"),
 }
+
+
+def secret_names() -> list[str]:
+    """Names (never values) of the secrets the platform gave this app."""
+    try:
+        return sorted(str(key) for key in st.secrets)
+    except FileNotFoundError:
+        return []
+
+
+def show_configuration_error(error: ConfigurationError) -> None:
+    """Streamlit hides exception text on the page, so print the (value-free) message ourselves."""
+    st.error(f"Configuration problem: {error}")
+    names = secret_names()
+    st.markdown(
+        "Secrets must be **top-level** entries named exactly like the `.env` keys, for example "
+        '`RAG_OPENAI_API_KEY = "sk-..."`, outside any `[section]`. '
+        + (
+            "Secret names the app can see: " + ", ".join(f"`{name}`" for name in names)
+            if names
+            else "The app can see **no secrets at all**: open the app's **Settings → Secrets**."
+        )
+    )
+    st.stop()
 
 
 def apply_environment() -> None:
@@ -57,4 +82,8 @@ def prepared_container() -> Container:
     return container
 
 
-main(prepared_container)
+try:
+    main(prepared_container)
+except ConfigurationError as error:
+    configure_page()
+    show_configuration_error(error)
