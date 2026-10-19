@@ -27,6 +27,10 @@ Steps (you do these in your browser; I cannot sign in for you):
 4. **Advanced settings**: Python **3.11** (or 3.12; the code needs 3.11+). In **Secrets** paste the
    contents of `cloud/secrets.toml.example` with real values (OpenAI key, Supabase URL, anon key,
    `RAG_RUN_STORE = "supabase"`). Never the Supabase `service_role` key.
+   The Secrets box needs **TOML** (`KEY = "value"`, quoted), not `.env` format (`KEY=value`). Paste
+   only the four lines from the example, not your whole `.env`. The entrypoint also forces
+   `RAG_EMBEDDER`, `RAG_VECTOR_STORE`, batch size and folder paths to the cloud values, so stray lines
+   copied from `.env` cannot break the install ([cloud_env.py](src/rag_eu_law/app/cloud_env.py)).
 5. **Deploy**. The first load shows "Building the search index...". Then sign in with a Supabase user.
 
 Measured locally in a clean virtualenv with only `cloud/requirements.txt` (492 MB on disk; no
