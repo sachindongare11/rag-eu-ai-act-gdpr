@@ -3,6 +3,19 @@
 Decisions, architecture, measured results and known limits. Keep this file current when the
 design changes. (Formerly `CLAUDE.md`; the overview is in the [README](../README.md).)
 
+## Evaluation framework update — 28 October 2026
+
+The sections below preserve the original application design and historical measurements.
+The newer evaluation framework adds grounding/reference judges, human-review reports,
+manifested per-question regression, controlled security checks and performance benchmarks.
+Current file responsibilities and limits are in the [evaluation architecture](evaluation/ARCHITECTURE.md),
+commands in the [runbook](evaluation/RUNBOOK.md), and evidence status in the
+[progress tracker](evaluation/RAG_EVALUATION_PROGRESS.md).
+
+Latest user-reported local CI-style verification: 426 passed, ten model-download tests skipped,
+97% statement coverage and no warnings. GitHub CI has not yet been observed running.
+Historical ruff/mypy successes below do not establish those checks for the new evaluation code.
+
 ## 1. Project purpose
 Local RAG system answering questions about the GDPR (Regulation (EU) 2016/679) and the EU AI Act.
 Every answer cites regulation, article/paragraph or recital, and PDF page, or refuses with
@@ -240,3 +253,4 @@ Found by inspecting `data/raw/` (459-page AI Act PDF, 117-page GDPR PDF; all tex
 Steps 9-10 (after the original brief): OpenAI client (`gpt-6-luna`), run history (`RunStore`, SQLite) and the Streamlit UI are done (ruff, mypy --strict, 249 tests); verified by hand in the browser with Luna: answer, citations, sources, rating saved. Supabase auth + Postgres store added (one real sign-in, ask and rate verified, see section 7). Streamlit Community Cloud entrypoint added (verified locally in a clean venv only). Next: deploy it and test with a second user; export of rated runs to eval questions.
 
 All eight steps of the original brief are complete. Definition of done: `ingest` runs on both PDFs without errors and is idempotent (byte-identical `chunks.jsonl`, unchanged index counts); `ask` returns cited answers and refuses out-of-scope questions; ruff, mypy --strict and tests pass; eval numbers are in section 7.
+

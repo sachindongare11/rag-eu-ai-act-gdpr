@@ -44,11 +44,14 @@ def summary_lines(summary: EvalSummary, top_k: int) -> list[str]:
         f"| questions (answerable / out-of-scope) | {summary.answerable_questions} / "
         f"{summary.out_of_scope_questions} |",
         f"| retrieval hit rate@{top_k} | {_pct(summary.retrieval_hit_rate_at_k)} |",
+        f"| complete-source retrieval rate@{top_k} | "
+        f"{_pct(summary.complete_source_retrieval_rate_at_k)} |",
         f"| mean retrieval recall@{top_k} | {_pct(summary.mean_retrieval_recall)} |",
         f"| citation accuracy | {_pct(summary.citation_accuracy)} |",
         f"| refusal accuracy (out-of-scope) | {_pct(summary.refusal_accuracy)} |",
         f"| false refusal rate (answerable) | {_pct(summary.false_refusal_rate)} |",
         f"| mean latency | {_ms(summary.mean_latency_ms)} |",
+        f"| mean retrieval latency | {_ms(summary.mean_retrieval_latency_ms)} |",
         *(
             f"| hit rate@{top_k}, {name} ({kind.questions} q) | {_pct(kind.retrieval_hit_rate)} |"
             for name, kind in summary.by_type.items()
@@ -69,6 +72,7 @@ def _failed(result: QuestionResult) -> bool:
     return (
         bool(result.error)
         or result.retrieval_hit is False
+        or bool(result.missing_sources)
         or result.citation_correct is False
         or wrong_refusal
     )
@@ -76,10 +80,26 @@ def _failed(result: QuestionResult) -> bool:
 
 def _failure(result: QuestionResult) -> str:
     detail = result.error or f"answer: {result.answer!r}; citations: {result.citations}"
-    return (
-        f"- **{result.question_id}** {result.question}\n"
-        f"  - retrieved: {result.retrieved}\n  - {detail}"
-    )
+    lines = [
+        f"- **{result.question_id}** {result.question}",
+        f"  - retrieved: {result.retrieved}",
+    ]
+
+    if result.missing_sources:
+        labels = []
+        for source in result.missing_sources:
+            if source.article is not None:
+                locator = f"Article {source.article}"
+            elif source.recital is not None:
+                locator = f"Recital {source.recital}"
+            else:
+                locator = f"Annex {source.annex}"
+            labels.append(f"{source.regulation.value} {locator}")
+
+        lines.append(f"  - missing expected sources: {', '.join(labels)}")
+
+    lines.append(f"  - {detail}")
+    return "\n".join(lines)
 
 
 def _mark(value: bool | None) -> str:

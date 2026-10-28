@@ -15,3 +15,11 @@ data/history.sqlite*
 .DS_Store
 *.egg-info/
 docker.env
+
+
+# Local evaluation evidence and CI-generated reports (inputs remain versioned).
+/eval/runs/
+/eval/calibration/
+/ci-reports/
+/htmlcov/
+/coverage.xml

@@ -76,10 +76,13 @@ class QuestionResult(_Frozen):
     retrieved: list[str]
     retrieval_recall: float | None = None
     retrieval_hit: bool | None = None
+    missing_sources: list[ExpectedSource] | None = None
     answer: str | None = None
     citations: list[str] = []
     refused: bool | None = None
     citation_correct: bool | None = None
+    retrieval_latency_ms: float | None = None
+    retrieved_context: list[Chunk] | None = None
     latency_ms: float | None = None
     error: str | None = None
 
@@ -93,9 +96,11 @@ class EvalSummary(_Frozen):
     answerable_questions: int
     out_of_scope_questions: int
     retrieval_hit_rate_at_k: float | None
+    complete_source_retrieval_rate_at_k: float | None = None
     mean_retrieval_recall: float | None
     citation_accuracy: float | None
     false_refusal_rate: float | None
     refusal_accuracy: float | None
     mean_latency_ms: float | None
+    mean_retrieval_latency_ms: float | None = None
     by_type: dict[str, TypeSummary]

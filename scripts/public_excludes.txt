@@ -21,3 +21,11 @@
 - docs/INTERVIEW_SUMMARY.md
 - scripts/export_public.sh
 - scripts/public_excludes.txt
+
+
+# Local evaluation responses, checkpoints and review evidence.
+- eval/runs/
+- eval/calibration/
+- ci-reports/
+- htmlcov/
+- coverage.xml
