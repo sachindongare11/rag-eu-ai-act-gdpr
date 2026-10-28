@@ -1,122 +1,118 @@
-# EU law RAG: cited answers about the GDPR and the EU AI Act
+# EU law RAG and evaluation framework
 
-Ask a question about the **GDPR** (Regulation (EU) 2016/679) or the **EU AI Act** and get an answer
-that cites the exact source (`[GDPR Art. 17(1), p. 61]`). If the ingested texts do not support an
-answer, the system says **"Not covered by the provided documents"** instead of guessing.
+A Python application for cited questions and answers over the GDPR and the EU AI Act,
+with a separate evaluation framework for retrieval, answer grounding, reference coverage,
+robustness, security controls, provenance, and performance.
 
-> Output is generated from the ingested texts and is **not legal advice**. Verify against the
-> official sources.
->
-> The AI Act file in `data/raw/` is the European Parliament's first-reading text of 13 March 2024
-> (`P9_TA(2024)0138`), not the final Official Journal text of Regulation (EU) 2024/1689.
-> Wording and recital numbers may differ.
+The application verifies citation locations against retrieved chunks. This does not guarantee
+that every statement is supported; the evaluation layer measures that separately.
+Output is not legal advice.
+
+**Corpus scope:** the AI Act PDF is the European Parliament first-reading text of 13 March
+2024, not the final Official Journal text. Findings apply to this supplied corpus.
+See [source documents](data/raw/README.md).
 
 ## Demo
 
 ![Answer with citations](docs/images/demo-answer.jpg)
 
-The answer lists only claims the retrieved articles support, each tagged with article, paragraph and
-PDF page. The sources panel shows the exact passages the model was given:
-
 ![Retrieved sources](docs/images/demo-sources.jpg)
 
-## What it does
+## Application setup
 
-- **Reads the PDFs by legal structure**: recitals, chapters, articles, paragraphs and annexes become
-  separate chunks with metadata (regulation, article, paragraph, page), not fixed-size windows.
-- **Hybrid search**: dense embeddings + BM25 merged with reciprocal rank fusion, plus direct lookup
-  when the question names "Article 22", "Recital 47" or "Annex III". Metadata filters supported.
-- **Grounded answers**: the model sees only the retrieved passages. Every citation in the answer is
-  checked against those passages; invented ones are removed, and an answer with no valid citation
-  becomes a refusal.
-- **Three interfaces**: command line, HTTP API (FastAPI) and a Streamlit web app with sign-in,
-  source viewer, ratings and run history.
-- **Swappable parts**: embedder, vector store and LLM (Ollama, OpenAI, Anthropic) are chosen by
-  configuration; adding one means adding a class and registering it in one place.
+From the project root in Windows PowerShell:
 
-## Quick start (local)
-
-Put the two source PDFs in `data/raw/` first. Some copies of this repository include them and
-some do not; [data/raw/README.md](data/raw/README.md) says where to get them and which layouts the
-parser was tested on.
-
-```bash
-uv sync --all-extras              # install
-cp .env.example .env              # defaults to a local Ollama model
-uv run rag-eu-law ingest          # parse, chunk, embed and index the PDFs in data/raw/ (about 20-35 s)
-uv run rag-eu-law ask "What does GDPR Article 17 say?"
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[index,llm,api,ui,cloud]" pytest pytest-cov
+Copy-Item .env.example .env
 ```
 
-For the default local model, run Ollama and `ollama pull qwen2.5:7b`. To use OpenAI instead, set
-`RAG_LLM_PROVIDER=openai` and `RAG_OPENAI_API_KEY=...` in `.env` (model defaults to `gpt-6-luna`).
+For an existing installation, keep your current `.env`. Select the provider and an available
+model there. Ollama needs a running local server and the configured model installed; hosted
+providers need their corresponding API key. Do not commit `.env`.
 
-| Task | Command |
-|---|---|
-| Ask with filters | `uv run rag-eu-law ask "..." --regulation gdpr --article 22 --show-chunks` |
-| Web app | `uv run streamlit run src/rag_eu_law/app/ui.py` |
-| HTTP API | `uv run uvicorn rag_eu_law.app.api:app` (`POST /ask`, docs at `/docs`) |
-| Evaluate | `uv run rag-eu-law eval` (or `--retrieval-only` without an LLM) |
-| Tests and checks | `uv run pytest`, `uv run ruff check .`, `uv run mypy` |
-
-## How it works
-
-```mermaid
-flowchart LR
-  PDF[PDFs] --> L[Load] --> C[Clean] --> P[Parse structure] --> K[Chunk] --> E[Embed + index]
-  Q[Question] --> R[Hybrid retrieve + RRF] --> RR[Rerank, optional] --> G[Generate + verify citations]
-  E --> R
+```powershell
+.\.venv\Scripts\rag-eu-law.exe ingest
+.\.venv\Scripts\rag-eu-law.exe ask "What does GDPR Article 17 say?" --show-chunks
+.\.venv\Scripts\python.exe -m streamlit run src/rag_eu_law/app/ui.py
+# Alternatively, start the HTTP API:
+.\.venv\Scripts\python.exe -m uvicorn rag_eu_law.app.api:app
 ```
 
-Stage-by-stage class names, design decisions and their rejected alternatives are in
-[docs/DESIGN.md](docs/DESIGN.md).
+With uv, use `uv sync --all-extras` and `uv run` for the equivalent application commands.
+Deployment instructions are in [DEPLOY.md](DEPLOY.md).
 
-## Evaluation
+## Evaluation quick start
 
-26 questions in [eval/questions.yaml](eval/questions.yaml): 7 direct lookups, 7 concept questions,
-6 cross-regulation questions, 6 out-of-scope questions that must be refused.
+Read the [runbook](docs/evaluation/RUNBOOK.md) for prerequisites and all commands.
+Use a new run directory for each evaluation.
 
-| | local `qwen2.5:7b` | OpenAI `gpt-6-luna` |
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q -rs --tb=short
+.\.venv\Scripts\python.exe .\scripts\validate_corpus.py --output .\eval\runs\corpus-review-001.json
+.\.venv\Scripts\python.exe .\scripts\run_retrieval_evaluation.py --output-dir .\eval\runs\retrieval-review-001
+```
+
+The retrieval command captures provenance and does not call the answer model. It requires an
+existing index; embedding initialization can contact Hugging Face. Full answer evaluation and
+LLM judging use the configured model and may incur API charges.
+
+| Evaluation layer | Input | Output |
 |---|---|---|
-| Retrieval hit rate@5 | 100% | 100% |
-| Citation accuracy | 90% | 85% |
-| Refusal accuracy (out-of-scope) | 100% | 100% |
-| False refusals (answerable) | 5% | 5% |
+| Corpus validation | PDFs and chunks | Schema, readability, source/page and duplicate-ID findings |
+| Retrieval | Questions with expected sources and index | Hit rate, source recall, complete-source rate and saved chunks |
+| Grounding judge | Saved answer and retrieved context | Claim verdicts, evidence IDs and reasons |
+| Reference coverage pilot | Answer and three approved d01 facts | Covered, partial, missing, contradicted or uncertain facts |
+| Human review | Flagged or sampled claims | Reviewer decisions displayed separately from judge verdicts |
+| Regression | Two compatible manifested runs | Aggregate and per-question non-decline checks |
+| Robustness/security | User attacks or controlled source contexts | Raw/final responses and observations requiring review |
+| Performance | Repeated retrieval or answer attempts | Latency distributions, errors and stability observations |
 
-The set is small and was written by the implementer, so treat it as a sanity check, not a benchmark.
-Full reports: [eval/local-qwen2.5-7b/](eval/local-qwen2.5-7b) and [eval/luna/](eval/luna).
+## Recorded verification
 
-## Deploying
+Latest user-reported Windows CI-style run on 28 October 2026: **426 passed, 10 skipped,
+97% statement coverage, no warnings reported, exit code 0**. The ten skipped tests require
+model downloads. This is local evidence; GitHub runner results must be checked separately.
 
-- **Streamlit Community Cloud (free):** entrypoint `cloud/streamlit_app.py`; steps in
-  [DEPLOY.md](DEPLOY.md) (section A1).
-- **Docker** (`Dockerfile`): ONNX embeddings, no PyTorch, index built into the image; see
-  [DEPLOY.md](DEPLOY.md).
-- **Shared history and login:** optional Supabase (SQL in [supabase/migrations/](supabase/migrations)).
-  Without it, runs are saved to a local SQLite file and there is no login.
+On the 26-question dataset (20 answerable, six out of scope), the captured retrieval baseline
+reported hit rate@5 of 100%, complete-source rate@5 of 65%, and mean expected-source recall
+of approximately 84%. These measure expected-source retrieval, not legal answer correctness.
+The initial grounding batch marked 96 claims supported and nine insufficient evidence;
+those model judgments remain provisional.
 
-## Project layout
+Earlier model-comparison reports in [eval/](eval/README.md) are historical runs. Their results
+must not be substituted for the newer baseline. The newer raw run and calibration evidence
+remains local and is not included in this branch.
 
-```
-src/rag_eu_law/
-  domain/      models, protocols (interfaces), exceptions, constants
-  ingestion/   loader, cleaner, structure parser, chunker, pipeline
-  indexing/    embedders, vector stores, BM25 index
-  retrieval/   hybrid retriever, fusion, reference parsing, rerankers
-  generation/  prompts, LLM clients, citation verification, answer generator
-  evaluation/  question set loader, metrics, report
-  storage/     run history stores (SQLite, Supabase, in-memory)
-  app/         config, container (wiring), CLI, API, Streamlit UI, auth
-cloud/         Streamlit Community Cloud entrypoint
-tests/         unit, contract (shared by all implementations), integration
-eval/          questions and reports
-```
+## Project structure
 
-## Known limits
+| Path | Responsibility |
+|---|---|
+| `src/rag_eu_law/domain/` | Models, protocols, constants and exceptions |
+| `src/rag_eu_law/ingestion/` | PDF loading, cleaning, parsing and chunking |
+| `src/rag_eu_law/indexing/` | Embedding, vector storage and BM25 indexing |
+| `src/rag_eu_law/retrieval/` | Hybrid retrieval, reference lookup, fusion and reranking |
+| `src/rag_eu_law/generation/` | Prompts, model clients, citation verification and answers |
+| `src/rag_eu_law/evaluation/` | Metrics, judges, references, provenance, fingerprints and regression |
+| `src/rag_eu_law/storage/` | SQLite, Supabase and in-memory run history |
+| `src/rag_eu_law/app/` | Settings, wiring, CLI, API, UI and authentication |
+| `scripts/` | Repeatable evaluation, report and benchmark commands |
+| `tests/` | Unit, contract and integration tests |
+| `eval/` | Question sets, reference facts and historical reports |
+| `docs/evaluation/` | Architecture, runbook and progress tracker |
+| `.github/workflows/` | Ubuntu and Windows software-test workflow |
+| `cloud/`, `docker/`, `supabase/` | Deployment entrypoints and database migration |
 
-- Footnotes (mostly Official Journal references) are dropped, so they cannot be retrieved.
-- Citations are checked for existence in the retrieved passages, not for whether the claim is
-  faithful to them; a small local model can still over-read a source.
-- A regulation named anywhere in a question filters the whole search to that law, which can hide
-  the other law in cross-regulation questions (see eval question x02 in `docs/DESIGN.md`).
-- The Anthropic client and the real cross-encoder reranker are only tested with fakes.
+## Documentation and limits
 
+- [Evaluation architecture](docs/evaluation/ARCHITECTURE.md)
+- [Evaluation runbook](docs/evaluation/RUNBOOK.md)
+- [Progress and remaining work](docs/evaluation/RAG_EVALUATION_PROGRESS.md)
+- [Application design and historical decisions](docs/DESIGN.md)
+
+The dataset and review samples are small. Assistant-assisted review is not independent human
+validation. Reference coverage is a one-question, three-fact pilot, not exhaustive correctness.
+Security checks cover a few controlled cases and one injected-source payload. Performance
+measurements are sequential samples with no approved acceptance targets. Full load, cost,
+timeout/retry and broader independent calibration work remains.
