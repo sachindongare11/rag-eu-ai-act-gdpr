@@ -18,6 +18,7 @@ from rag_eu_law.evaluation.models import EvalQuestion, ExpectedSource, QuestionT
 from rag_eu_law.evaluation.report import render_markdown, write_report
 from rag_eu_law.evaluation.runner import EvalRunner, score_question
 from tests.fixtures import SAMPLE_CHUNKS, erasure_chunk
+from rag_eu_law.domain.exceptions import EvaluationError, RagError, RetrievalError
 
 REAL_QUESTIONS = Path("eval/questions.yaml")
 
@@ -203,3 +204,187 @@ def test_eval_command_end_to_end(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.output
     assert "retrieval hit rate@5" in result.output
     assert (tmp_path / "e" / "report.md").is_file()
+
+def test_missing_sources_empty_when_all_found() -> None:
+    question = _question("complete", QuestionType.CONCEPT, ERASURE)
+
+    result = score_question(question, CONTEXT, None)
+
+    assert result.missing_sources == []
+
+
+def test_missing_sources_identifies_only_missing_reference() -> None:
+    missing = ExpectedSource(regulation=Regulation.AI_ACT, article="10")
+    question = _question(
+        "partial", QuestionType.CROSS_REGULATION, ERASURE, missing
+    )
+
+    result = score_question(question, CONTEXT, None)
+
+    assert result.retrieval_hit is True
+    assert result.retrieval_recall == 0.5
+    assert result.missing_sources == [missing]
+
+
+def test_missing_sources_none_for_out_of_scope() -> None:
+    question = _question("unsupported", QuestionType.OUT_OF_SCOPE)
+
+    result = score_question(question, CONTEXT, None)
+
+    assert result.missing_sources is None
+
+
+def test_report_includes_partial_retrieval_failure() -> None:
+    missing = ExpectedSource(regulation=Regulation.AI_ACT, article="10")
+    question = _question(
+        "partial-report", QuestionType.CROSS_REGULATION, ERASURE, missing
+    )
+    result = score_question(question, CONTEXT, None)
+
+    text = render_markdown([result], summarize([result]), top_k=5)
+
+    assert "## Failures" in text
+    assert "**partial-report**" in text
+    assert "missing expected sources: AI Act Article 10" in text
+
+def test_complete_source_rate_counts_partial_cases_as_incomplete() -> None:
+    missing = ExpectedSource(regulation=Regulation.AI_ACT, article="10")
+    complete = score_question(
+        _question("complete", QuestionType.CONCEPT, ERASURE),
+        CONTEXT,
+        None,
+    )
+    partial = score_question(
+        _question("partial", QuestionType.CROSS_REGULATION, ERASURE, missing),
+        CONTEXT,
+        None,
+    )
+    out_of_scope = score_question(
+        _question("outside", QuestionType.OUT_OF_SCOPE),
+        CONTEXT,
+        None,
+    )
+
+    summary = summarize([complete, partial, out_of_scope])
+
+    assert summary.complete_source_retrieval_rate_at_k == 0.5
+
+
+def test_complete_source_rate_counts_retrieval_errors_as_incomplete() -> None:
+    questions = [
+        _question("ok", QuestionType.CONCEPT, ERASURE, text="works"),
+        _question("bad", QuestionType.CONCEPT, ERASURE, text="fails"),
+    ]
+    results = EvalRunner(
+        StubRetriever(fail_on="fails"), None, top_k=5
+    ).run(questions)
+
+    assert summarize(results).complete_source_retrieval_rate_at_k == 0.5
+
+
+def test_complete_source_rate_is_none_without_answerable_cases() -> None:
+    outside = score_question(
+        _question("outside", QuestionType.OUT_OF_SCOPE),
+        CONTEXT,
+        None,
+    )
+
+    assert summarize([]).complete_source_retrieval_rate_at_k is None
+    assert summarize([outside]).complete_source_retrieval_rate_at_k is None
+
+
+def test_report_displays_complete_source_rate() -> None:
+    result = score_question(
+        _question("complete", QuestionType.CONCEPT, ERASURE),
+        CONTEXT,
+        None,
+    )
+
+def test_runner_records_retrieval_time(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ticks = iter([10.0, 10.025])
+    monkeypatch.setattr(
+        "rag_eu_law.evaluation.runner.perf_counter",
+        lambda: next(ticks),
+    )
+    question = _question("timed", QuestionType.CONCEPT, ERASURE)
+
+    result = EvalRunner(StubRetriever(), None, top_k=5).run([question])[0]
+
+    assert result.retrieval_latency_ms == pytest.approx(25.0)
+    summary = summarize([result])
+    assert summary.mean_retrieval_latency_ms == pytest.approx(25.0)
+    assert summary.mean_latency_ms is None
+
+    text = render_markdown([result], summary, top_k=5)
+    assert "| mean retrieval latency | 25 ms |" in text
+
+
+def test_runner_records_time_when_retrieval_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ticks = iter([10.0, 10.050])
+    monkeypatch.setattr(
+        "rag_eu_law.evaluation.runner.perf_counter",
+        lambda: next(ticks),
+    )
+    question = _question(
+        "failed", QuestionType.CONCEPT, ERASURE, text="fails"
+    )
+
+    result = EvalRunner(
+        StubRetriever(fail_on="fails"), None, top_k=5
+    ).run([question])[0]
+
+    assert result.error == "index broken"
+    assert result.retrieval_latency_ms == pytest.approx(50.0)
+    assert summarize([result]).mean_retrieval_latency_ms is None
+
+def test_generation_failure_preserves_retrieval(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ticks = iter([10.0, 10.025])
+    monkeypatch.setattr(
+        "rag_eu_law.evaluation.runner.perf_counter",
+        lambda: next(ticks),
+    )
+
+    class FailingGenerator:
+        def generate(
+            self, question: str, context: list[ScoredChunk]
+        ) -> Answer:
+            raise RagError("generation failed")
+
+    question = _question("generation-error", QuestionType.CONCEPT, ERASURE)
+    result = EvalRunner(
+        StubRetriever(), FailingGenerator(), top_k=5
+    ).run([question])[0]
+
+    assert result.error == "generation failed"
+    assert result.retrieved == [item.chunk.chunk_id for item in CONTEXT]
+    assert result.retrieval_recall == 1.0
+    assert result.missing_sources == []
+    assert result.retrieval_latency_ms == pytest.approx(25.0)
+    assert result.refused is None
+
+def test_retrieved_context_survives_json_export(tmp_path: Path) -> None:
+    question = _question("evidence", QuestionType.CONCEPT, ERASURE)
+    result = score_question(question, CONTEXT, None)
+
+    assert result.retrieved_context == [item.chunk for item in CONTEXT]
+
+    write_report([result], summarize([result]), tmp_path, top_k=5)
+    payload = json.loads(
+        (tmp_path / "results.json").read_text(encoding="utf-8")
+    )
+
+    saved = payload["results"][0]["retrieved_context"]
+    expected = [
+        item.chunk.model_dump(mode="json")
+        for item in CONTEXT
+    ]
+
+    assert saved == expected
+    assert saved[0]["text"] == CONTEXT[0].chunk.text
+    assert saved[0]["chunk_id"] == result.retrieved[0]

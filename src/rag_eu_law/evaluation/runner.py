@@ -1,6 +1,7 @@
 """Run the evaluation set through retrieval and (optionally) generation."""
 
 from __future__ import annotations
+from time import perf_counter
 
 import logging
 
@@ -24,28 +25,61 @@ class EvalRunner:
         return [self._run_one(question) for question in questions]
 
     def _run_one(self, question: EvalQuestion) -> QuestionResult:
+        retrieval_started = perf_counter()
+
         try:
             context = self._retriever.retrieve(question.question, self._top_k)
-            answer = (
-                self._generator.generate(question.question, context) if self._generator else None
-            )
         except RagError as error:
+            retrieval_ms = (perf_counter() - retrieval_started) * 1000
             logger.warning("question %s failed: %s", question.id, error)
             return QuestionResult(
                 question_id=question.id,
                 type=question.type,
                 question=question.question,
                 retrieved=[],
+                retrieval_latency_ms=retrieval_ms,
                 error=str(error),
             )
-        return score_question(question, context, answer)
+
+        retrieval_ms = (perf_counter() - retrieval_started) * 1000
+
+        try:
+            answer = (
+                self._generator.generate(question.question, context)
+                if self._generator
+                else None
+            )
+        except RagError as error:
+            logger.warning("question %s failed: %s", question.id, error)
+            result = score_question(question, context, None)
+            return result.model_copy(
+                update={
+                    "retrieval_latency_ms": retrieval_ms,
+                    "error": str(error),
+                }
+            )
+
+        result = score_question(question, context, answer)
+        return result.model_copy(
+            update={"retrieval_latency_ms": retrieval_ms}
+        )
 
 
 def score_question(
     question: EvalQuestion, context: list[ScoredChunk], answer: Answer | None
 ) -> QuestionResult:
     retrieved = [item.chunk for item in context]
+
     hits = [any(source.matches(chunk) for chunk in retrieved) for source in question.expected]
+    missing_sources = (
+        [
+            source
+            for source, found in zip(question.expected, hits, strict=True)
+            if not found
+        ]
+        if question.expected
+        else None
+        )
     refused = None if answer is None else not answer.citations
     citation_correct = None
     if answer is not None and question.answerable:
@@ -55,10 +89,12 @@ def score_question(
             for citation in answer.citations
         )
     return QuestionResult(
+        missing_sources=missing_sources,
         question_id=question.id,
         type=question.type,
         question=question.question,
         retrieved=[chunk.chunk_id for chunk in retrieved],
+        retrieved_context=retrieved,
         retrieval_recall=sum(hits) / len(hits) if hits else None,
         retrieval_hit=any(hits) if hits else None,
         answer=answer.answer if answer else None,

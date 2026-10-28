@@ -38,10 +38,16 @@ class SqliteRunStore:
         self._path = path
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
-            with self._connect() as connection:
+
+            # Exit the transaction first, then close the connection.
+            # Both cleanup steps also run if schema creation fails.
+            with closing(self._connect()) as connection, connection:
                 connection.execute(SCHEMA)
+
         except (OSError, sqlite3.Error) as error:
-            raise RunStoreError(f"Cannot open run history at {path}: {error}") from error
+            raise RunStoreError(
+                f"Cannot open run history at {path}: {error}"
+            ) from error
 
     def save(self, record: RunRecord) -> None:
         row = _to_row(record)

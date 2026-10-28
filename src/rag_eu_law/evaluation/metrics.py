@@ -18,7 +18,18 @@ def summarize(results: list[QuestionResult]) -> EvalSummary:
     return EvalSummary(
         answerable_questions=len(answerable),
         out_of_scope_questions=len(refusable),
+        mean_retrieval_latency_ms=_mean(
+            [r.retrieval_latency_ms for r in results if r.error is None]
+        ),
         retrieval_hit_rate_at_k=_rate(answerable, lambda r: r.retrieval_hit is True),
+        complete_source_retrieval_rate_at_k=_rate(
+            answerable,
+            lambda r: (
+                r.error is None
+                and r.retrieval_recall == 1.0
+                and r.missing_sources == []
+            ),
+        ),
         mean_retrieval_recall=_mean([r.retrieval_recall for r in answerable]),
         citation_accuracy=_rate(
             answerable, lambda r: r.citation_correct is True, needs_answer=True
